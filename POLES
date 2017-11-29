@@ -1,0 +1,89 @@
+#include <Keypad.h> //Library to build poles matrix //COM 13
+const byte ROWS = 6; //Six upper poles
+const byte COLS = 6; //Six lower poles
+
+// We will use a grid configuration to define all possible pole connections
+char poles[ROWS][COLS] = {
+  {'A','B','C','D','E','F'}, //9, A1 White
+  {'G','H','I','J','K','L'}, //8, A0 yellow
+  {'M','N','O','P','Q','R'}, //7, A2 orange
+  {'S','T','U','V','W','X'}, //6, A5 grey 
+  {'Y','Z','0','1','2','3'}, //5, A4 blue 
+  {'4','5','6','7','8','9'}  //4, A3 red
+};
+
+byte rowPins[ROWS] = {9, 8, 7, 6, 5, 4}; //upper poles
+byte colPins[COLS] = {A0, A1, A2, A3, A4, A5}; //lower poles
+
+//initialize Jason Pole Connectors
+Keypad keypad = Keypad( makeKeymap(poles), rowPins, colPins, ROWS, COLS); 
+
+int music1 = 13; //To switch SPST Relay, I recommend you use a PNP reistor to power the relay
+byte white;
+byte yellow; //B,G,O,X,2,7
+byte orange;
+byte grey;
+byte blue1;
+byte red1;
+
+void setup(){
+  Serial.begin(9600);
+  Serial.println("It has begun");
+  pinMode(music1, OUTPUT);
+  digitalWrite(music1, LOW); // turn the Relay off
+  keypad.addEventListener(keypadEvent); //add an event listener for this keypad
+}
+  
+void loop(){
+  keypad.getKeys();{ // If keypad buttons are active 
+  unLock();
+  }
+}
+
+void keypadEvent(KeypadEvent key){
+  switch (keypad.getState()){
+    case HOLD:
+    switch(key){
+      case'B': white = HIGH; break;
+      case'G': yellow = HIGH; break;
+      case'O': orange = HIGH; break;
+      case'X': grey = HIGH; break;
+      case'2': blue1 = HIGH; break;
+      case'7': red1 = HIGH; break;
+    }
+  }
+}
+    
+void unLock(){
+  int closed;
+
+  Serial.println(white);
+  Serial.print("white: ");
+  Serial.println(yellow);
+  Serial.print("yellow: ");
+  Serial.println(orange);
+  Serial.print("orange: ");
+  Serial.println(grey);
+  Serial.print("grey: ");
+  Serial.println(blue1);
+  Serial.print("blue: ");
+  Serial.println(red1);
+  Serial.print("red: ");
+  
+    if ((white == HIGH) && (yellow == HIGH) && (orange == HIGH) && (grey == HIGH) && (blue1 == HIGH) && (red1 == HIGH)) {
+      digitalWrite(music1, HIGH); //Pin 13
+      Serial.println("Open");
+      delay(5000);
+      digitalWrite(music1, LOW);
+      delay(500000);
+      closed = closed +1; }
+      
+      
+      if (closed >=1) 
+      {
+        Serial.println("Closed");
+        digitalWrite(music1, LOW);
+       } 
+     
+    
+}
