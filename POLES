@@ -57,26 +57,33 @@ void keypadEvent(KeypadEvent key){
 void unLock(){
   int closed;
 
-  Serial.println(white);
   Serial.print("white: ");
-  Serial.println(yellow);
+  Serial.println(white);
+  
   Serial.print("yellow: ");
-  Serial.println(orange);
+  Serial.println(yellow);
+  
   Serial.print("orange: ");
-  Serial.println(grey);
+  Serial.println(orange);
+  
   Serial.print("grey: ");
-  Serial.println(blue1);
+  Serial.println(grey);
+  
   Serial.print("blue: ");
-  Serial.println(red1);
+  Serial.println(blue1);
+  
   Serial.print("red: ");
+  Serial.println(red1);
+  
   
     if ((white == HIGH) && (yellow == HIGH) && (orange == HIGH) && (grey == HIGH) && (blue1 == HIGH) && (red1 == HIGH)) {
       digitalWrite(music1, HIGH); //Pin 13
-      Serial.println("Open");
-      delay(5000);
-      digitalWrite(music1, LOW);
-      delay(500000);
-      closed = closed +1; }
+      //Serial.println("Open");
+     // delay(5000);
+   //   digitalWrite(music1, LOW);
+    //  delay(500000);
+     // closed = closed +1; 
+      }
       
       
       if (closed >=1) 
