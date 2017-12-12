@@ -20,8 +20,11 @@
 // ZERO_VOLUME_RESISTANCE value.  Next fill the container with a known volume of liquid and record
 // the sensor resistance (in ohms) as the CALIBRATION_RESISTANCE value, and the volume (which you've
 // measured ahead of time) as CALIBRATION_VOLUME.
-#define ZERO_VOLUME_RESISTANCE    500.00    // Resistance value (in ohms) when no liquid is present. Currently at 1790
-#define CALIBRATION_RESISTANCE    1015.00    // Resistance value (in ohms) when liquid is at max line. Currently at 1288 at least 10 gallons of water. 1420- Test 1.
+#define ZERO_VOLUME_RESISTANCE    1920.00    //MIN: 1898        AVG: 1920               MAX: 1941 
+                                             //MIN: 1759        AVG: 1787               MAX: 1836 
+                                             //MIN: 0           AVG: 0                  MAX: 0
+                                             
+#define CALIBRATION_RESISTANCE    1090.00    //MIN: 1067        AVG: 1072               MAX: 1076
 #define CALIBRATION_VOLUME        100.00    // Volume (in any units) when liquid is at max line.
 
   int fuelFull = 2;
@@ -51,7 +54,7 @@ void loop(void) {
     Serial.print("In Volume function : ");
     Serial.println(volume);
 
-    digitalWrite(digitalRead(fuelFull, HIGH));
+   // digitalWrite(digitalRead(fuelFull, HIGH));
     delay(1000);
     digitalWrite(fuelFull, LOW);
     fuelFullPlayed ++ ;
@@ -87,4 +90,3 @@ float resistanceToVolume(float resistance, float zeroResistance, float calResist
 
 
  
-
