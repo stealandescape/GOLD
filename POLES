@@ -76,11 +76,12 @@ void unLock(){
   Serial.println(red1);
   
   
-    if ((white == HIGH) && (yellow == HIGH) && (orange == HIGH) && (grey == HIGH) && (blue1 == HIGH) && (red1 == HIGH)) {
+    if ((white == HIGH) && (yellow == HIGH) && (orange == HIGH) 
+      && (grey == HIGH) && (blue1 == HIGH) && (red1 == HIGH)) {
       digitalWrite(music1, HIGH); //Pin 13
-      //Serial.println("Open");
-     // delay(5000);
-   //   digitalWrite(music1, LOW);
+      Serial.println("Open");
+     delay(1000);
+      digitalWrite(music1, LOW);
     //  delay(500000);
      // closed = closed +1; 
       }
