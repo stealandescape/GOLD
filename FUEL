@@ -22,7 +22,7 @@
 // measured ahead of time) as CALIBRATION_VOLUME.
 #define ZERO_VOLUME_RESISTANCE    1920.00    //MIN: 1898        AVG: 1920               MAX: 1941 
                                              //MIN: 1759        AVG: 1787               MAX: 1836 
-                                             //MIN: 0           AVG: 0                  MAX: 0
+                                             //MIN: 1797        AVG: 1797               MAX: 1797
                                              
 #define CALIBRATION_RESISTANCE    1090.00    //MIN: 1067        AVG: 1072               MAX: 1076
 #define CALIBRATION_VOLUME        100.00    // Volume (in any units) when liquid is at max line.
