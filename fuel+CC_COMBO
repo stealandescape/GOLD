@@ -1,0 +1,216 @@
+
+#define SERIES_RESISTOR     560    // Value of the series resistor in ohms.    
+#define SENSOR_PIN          0      // Analog pin which is connected to the sensor. 
+#define ZERO_VOLUME_RESISTANCE    1920.00    //MIN: 1898        AVG: 1920               MAX: 1941                                             //MIN: 1759        AVG: 1787               MAX: 1836                                             //MIN: 1797        AVG: 1797               MAX: 1797                                     
+#define CALIBRATION_RESISTANCE    1090.00    //MIN: 1067        AVG: 1072               MAX: 1076
+#define CALIBRATION_VOLUME        100.00    // Volume (in any units) when liquid is at max line.
+#define amp1 2 //Security room lights
+ #define amp2 3 //west light strip 1
+ #define amp3 4 //west light strip 2
+ #define amp4 5 // west light strip 3
+ #define amp5 6 // aztec lights
+ #define amp6 7 // mon one
+ #define amp7 8 // mon two
+ #define amp8 9  // mon three
+ #define amp9 10 // mon four
+ #define amp10 11 //Hatch over-ride (rope from ceiling)
+ #define amp11 12 //Air
+ #define amp12 13 //Heat
+ 
+int relay1 = 20; //AMP1 - SECURITY ROOM LIGHTS
+int relay2 = 22; //AMP2 - WEST ROOM LIGHT 1
+int relay3 = 24; //AMP3 - WEST ROOM LIGHT 2
+int relay4 = 26; //AMP4 - WEST ROOM LIGHT 3
+int relay5 = 28; //AMP5 - AZTEC LIGHTS
+int relay6 = 30; //MONITOR ONE
+int relay7 = 32; //MONITOR TWO
+int relay8 = 34; //MONITOR THREE
+int relay9 = 36; //MONITOR FOUR
+int relay10 = 38; //ROPE HATCH RELEASE
+int relay11 = A0; //AIR
+int relay12 = A1; //HEAT
+
+ int ampON = 0;
+ int fuelFull = 2;
+ int fuelFullPlayed;
+  
+void setup(void) {
+  Serial.begin(9600);
+ 
+ pinMode (amp1,INPUT_PULLUP); //AMP = 2; solenoid 1 Security lights
+ pinMode (amp2,INPUT_PULLUP); //AMP = 3; solenoid 2 WEST ROOM LIGHT 1
+ pinMode (amp3,INPUT_PULLUP); //AMP = 4; solenoid 3 WEST ROOM LIGHT 2
+ pinMode (amp4,INPUT_PULLUP); //AMP = 5; solenoid 4 WEST ROOM LIGHT 3
+ pinMode (amp5,INPUT_PULLUP); //AMP = 6; solenoid 5 AZTEC LIGHTS
+ pinMode (amp6,INPUT_PULLUP); //AMP = 7; solenoid 6 MONITOR ONE
+ pinMode (amp7,INPUT_PULLUP); //AMP = 8; solenoid 7 MONITOR TWO
+ pinMode (amp8,INPUT_PULLUP); //AMP = 9; solenoid 8 MONITOR THREE
+ pinMode (amp9,INPUT_PULLUP); //AMP = 10; solenoid 9 MONITOR FOUR
+ pinMode (amp10,INPUT_PULLUP); //AMP = 11; solenoid 10 ROPE HATCH RELEASE
+ pinMode (amp11,INPUT_PULLUP); //AMP = 12; solenoid 11 AIR
+ pinMode (amp12,INPUT_PULLUP); //AMP = 13; solenoid 12 HEAT
+
+ pinMode (relay1, OUTPUT); //solenoid 1 Security lights
+ pinMode (relay2, OUTPUT); //solenoid 2 WEST ROOM LIGHT 1
+ pinMode (relay3, OUTPUT); //solenoid 3 WEST ROOM LIGHT 2
+ pinMode (relay4, OUTPUT); //solenoid 4 WEST ROOM LIGHT 3
+ pinMode (relay5, OUTPUT); //solenoid 5 Aztec lights
+ pinMode (relay6, OUTPUT); //solenoid 6 MONITOR ONE
+ pinMode (relay7, OUTPUT); //solenoid 7 MONITOR TWO
+ pinMode (relay8, OUTPUT); //solenoid 8 MONITOR THREE
+ pinMode (relay9, OUTPUT); //solenoid 9 MONITOR FOUR
+ pinMode (relay10, OUTPUT); //solenoid 10 Rope Hatch Release
+ pinMode (relay11, OUTPUT); //solenoid 11 Air
+ pinMode (relay12, OUTPUT); //solenoid 12 Heat
+ pinMode(fuelFull,OUTPUT);
+ digitalWrite (fuelFull, HIGH);
+}
+ 
+void loop(void) {
+
+   int ampOn1 = digitalRead(amp1);
+  int ampOn2 = digitalRead(amp2);
+  int ampOn3 = digitalRead(amp3);
+  int ampOn4 = digitalRead(amp4);
+  int ampOn5 = digitalRead(amp5);
+  int ampOn6 = digitalRead(amp6);
+  int ampOn7 = digitalRead(amp7);
+  int ampOn8 = digitalRead(amp8);
+  int ampOn9 = digitalRead(amp9);
+  int ampOn10 = digitalRead(amp10);
+  int ampOn11 = digitalRead(amp11);
+  int ampOn12 = digitalRead(amp12);
+
+  if (ampOn1 == HIGH) {
+    digitalWrite(relay1, LOW);
+  
+  }else{ 
+    digitalWrite(relay1,HIGH); 
+  }
+
+  if (ampOn2 == HIGH) {
+    digitalWrite(relay2, LOW);
+  
+  }else{ 
+    digitalWrite(relay2,HIGH); 
+  }
+
+  if (ampOn3 == HIGH) {
+    digitalWrite(relay3, LOW);
+  
+  }else{ 
+    digitalWrite(relay3,HIGH); 
+  }
+
+  if (ampOn4 == HIGH) {
+    digitalWrite(relay4, LOW);
+  
+  }else{ 
+    digitalWrite(relay4,HIGH); 
+  }
+
+  if (ampOn5 == HIGH) {
+    digitalWrite(relay5, LOW);
+  
+  }else{ 
+    digitalWrite(relay5,HIGH); 
+  }
+
+  if (ampOn6 == HIGH) {
+    digitalWrite(relay6, LOW);
+  
+  }else{ 
+    digitalWrite(relay6,HIGH); 
+  }
+
+  if (ampOn7 == HIGH) {
+    digitalWrite(relay7, LOW);
+  
+  }else{ 
+    digitalWrite(relay7,HIGH); 
+  }
+
+  if (ampOn8 == HIGH) {
+    digitalWrite(relay8, LOW);
+  
+  }else{ 
+    digitalWrite(relay8,HIGH); 
+  }
+
+  if (ampOn9 == HIGH) {
+    digitalWrite(relay9, LOW);
+  
+  }else{ 
+    digitalWrite(relay9,HIGH); 
+  }
+
+  if (ampOn10 == HIGH) {
+    digitalWrite(relay10, LOW);
+  
+  }else{ 
+    digitalWrite(relay10,HIGH); 
+  }
+
+  if (ampOn11 == HIGH) {
+    digitalWrite(relay11, LOW);
+  
+  }else{ 
+    digitalWrite(relay11,HIGH); 
+  }
+
+  if (ampOn12 == HIGH) {
+    digitalWrite(relay12, LOW);
+  
+  }else{ 
+    digitalWrite(relay12,HIGH); 
+  }
+  // Measure sensor resistance.
+  float resistance = readResistance(SENSOR_PIN, SERIES_RESISTOR);
+  Serial.print("Resistance: "); 
+  Serial.print(resistance, 2);
+  Serial.println(" ohms");
+  // Map resistance to volume.
+  float volume = resistanceToVolume(resistance, ZERO_VOLUME_RESISTANCE, CALIBRATION_RESISTANCE, CALIBRATION_VOLUME);
+  Serial.print("Calculated volume: ");
+  Serial.println(volume, 5);
+
+  if (volume <= 50) { // && fuelFullPlayed == 0
+    Serial.print("In Volume function : ");
+    Serial.println(volume);
+
+   // digitalWrite(digitalRead(fuelFull, HIGH));
+    delay(1000);
+    digitalWrite(fuelFull, LOW);
+    fuelFullPlayed ++ ;
+    
+    
+    }
+    
+  // Delay for a second.
+  delay(1000);
+
+  
+}
+
+float readResistance(int pin, int seriesResistance) {
+  // Get ADC value.
+  float resistance = analogRead(pin);
+  // Convert ADC reading to resistance.
+  resistance = (1023.0 / resistance) - 1.0;
+  resistance = seriesResistance / resistance;
+  return resistance;
+}
+
+float resistanceToVolume(float resistance, float zeroResistance, float calResistance, float calVolume) {
+  if (resistance > zeroResistance || (zeroResistance - calResistance) == 0.0) {
+    // Stop if the value is above the zero threshold, or no max resistance is set (would be divide by zero).
+    return 0.0;
+  }
+  // Compute scale factor by mapping resistance to 0...1.0+ range relative to maxResistance value.
+  float scale = (zeroResistance - resistance) / (zeroResistance - calResistance);
+  // Scale maxVolume based on computed scale factor.
+  return calVolume * scale;
+}
+
+
+ 
