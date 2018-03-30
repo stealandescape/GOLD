@@ -22,12 +22,14 @@ byte GoodTagSerialNumber[4] = {0x50, 0x74, 0x3A, 0xA5}; // The Tag Serial number
 
 MFRC522 nfc(SDAPIN, RESETPIN); // Init of the library using the UNO pins declared above
 
+int shieldPlayed;
+
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
 pinMode(Buzzer, OUTPUT); // Set buzzer pin to an Output pin
 digitalWrite(Buzzer, LOW); // Buzzer Off at startup
 pinMode(7, OUTPUT);
-digitalWrite(7, HIGH);
+digitalWrite(7, LOW);
 SPI.begin();
 Serial.begin(115200);
 
@@ -53,13 +55,6 @@ Serial.println();
 }
 
 void loop() {
-
-// Light up starting LED's
-for (int x = 0; x < 8; x++) {
-leds[x] = CRGB::Blue;
-}
-FastLED.setBrightness(50);
-FastLED.show(); 
 
 String GoodTag="False"; // Variable used to confirm good Tag Detected
 
@@ -93,40 +88,29 @@ if (i == 3) { // if we made it to 4 loops then the Tag Serial numbers are matchi
 GoodTag="TRUE";
 } 
 }
-if (GoodTag == "TRUE"){
-  digitalWrite(7, LOW);
-  delay (2000) ;
+if (GoodTag == "TRUE" && shieldPlayed == 0){
+  Serial.println(" ON");
   digitalWrite(7, HIGH);
-Serial.println("Success!!!!!!!");
+ // delay(4000);
+  shieldPlayed ++;
 
-Serial.println();
-for(int x = 0; x < 8; x++) {
-leds[x] = CRGB::Green;
-}
-FastLED.show();
-for (int y = 0; y < 3; y++){
-digitalWrite (Buzzer, HIGH) ;// Buzzer On
-delay (50) ;// Delay 1ms 
-digitalWrite (Buzzer, LOW) ;// Buzzer Off
-delay (50) ;// delay 1ms
-}
-delay(1500);
 }
 else {
-Serial.println("TAG NOT ACCEPTED...... :(");
-Serial.println();
-for(int x = 0; x < 8; x++) {
-leds[x] = CRGB::Red;
+ // digitalWrite(7, LOW);
+ // Serial.println("OFF");
+ // delay(2000);
+
 }
-FastLED.show();
-for (int y = 0; y < 3; y++){
-digitalWrite (Buzzer, HIGH) ;// Buzzer On
-delay (300) ;// Delay 1ms 
-digitalWrite (Buzzer, LOW) ;// Buzzer Off
-delay (400) ;// delay 1ms
+if (GoodTag == "False" && shieldPlayed >= 1){
+  Serial.println("COMING BACK ON");
+  digitalWrite(7, LOW);
+  delay(1000);
+  shieldPlayed = 0;
+
 }
-delay(500); 
-}
+else {
+  Serial.println("JUST HANGING OUT");
+  }
 }
 }
 
