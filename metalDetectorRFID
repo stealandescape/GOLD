@@ -1,0 +1,100 @@
+#include <Wire.h>
+#include <SPI.h>
+#include <Adafruit_PN532.h>
+#include <LiquidCrystal_I2C.h>
+#define PN532_SCK  (2)
+#define PN532_MOSI (3)
+#define PN532_SS   (4)
+#define PN532_MISO (5)
+#define PN532_IRQ   (2)
+#define PN532_RESET (3)  // Not connected by default on the NFC 
+LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
+Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
+
+void setup(void) {
+  Wire.begin();
+  Serial.begin(9600);
+
+   lcd.begin(20,4);         // initialize the lcd for 20 chars 4 lines, turn on backlight
+
+// ------- Quick 3 blinks of backlight  -------------
+  for(int i = 0; i< 3; i++)
+  {
+    lcd.backlight();
+    delay(250);
+    lcd.noBacklight();
+    delay(250);
+  }
+  lcd.backlight(); // finish with backlight on  
+  Serial.println("Hello!");
+
+  lcd.setCursor(3,0); //Start at character 4 on line 0
+  lcd.print("Silver");
+  delay(1000);
+  lcd.clear();
+  delay(1000);
+
+  nfc.begin();
+
+  uint32_t versiondata = nfc.getFirmwareVersion();
+  if (! versiondata) {
+    Serial.print("Didn't find PN53x board");
+    while (1); // halt
+  }
+  // Got ok data, print it out!
+  Serial.print("Found chip PN5"); Serial.println((versiondata>>24) & 0xFF, HEX); 
+  Serial.print("Firmware ver. "); Serial.print((versiondata>>16) & 0xFF, DEC); 
+  Serial.print('.'); Serial.println((versiondata>>8) & 0xFF, DEC);
+  
+  // configure board to read RFID tags
+  nfc.SAMConfig();
+  
+  Serial.println("Waiting for an ISO14443A Card ...");
+}
+
+
+void loop(void) {
+  uint8_t success;
+  uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
+  uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
+uint32_t cardidentifier = 0;
+  // Wait for an ISO14443A type cards (Mifare, etc.).  When one is found
+  // 'uid' will be populated with the UID, and uidLength will indicate
+  // if the uid is 4 bytes (Mifare Classic) or 7 bytes (Mifare Ultralight)
+  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+  
+  if (success) {
+    // Found a card!
+
+    Serial.print("Card detected #");
+    // turn the four byte UID of a mifare classic into a single variable #
+    cardidentifier = uid[3];
+    cardidentifier <<= 8; cardidentifier |= uid[2];
+    cardidentifier <<= 8; cardidentifier |= uid[1];
+    cardidentifier <<= 8; cardidentifier |= uid[0];
+    Serial.println(cardidentifier);
+
+    if (cardidentifier == 3125958404) { //update with your RFID identifier!
+      Serial.println("raise the roof");
+  }
+    else {
+      if (cardidentifier == 3133235204) { 
+
+                          //3125958404-SWORD
+                          //3127009540-SHEILD
+                          //
+        Serial.println("go home");
+        lcd.setCursor(4,2);
+        lcd.print("MAGNESIUM");
+        delay(1000);
+        lcd.clear();
+    }
+        
+
+        
+      }
+
+    }
+}
+
+
