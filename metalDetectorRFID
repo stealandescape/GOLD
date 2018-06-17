@@ -28,9 +28,9 @@ void setup(void) {
   lcd.backlight(); // finish with backlight on  
   Serial.println("Hello!");
 
-  lcd.setCursor(3,0); //Start at character 4 on line 0
-  lcd.print("Silver");
-  delay(1000);
+  lcd.setCursor(5,0); //Start at character 4 on line 0
+  lcd.print("METAL DETECTOR");
+  delay(3000);
   lcd.clear();
   delay(1000);
 
@@ -67,34 +67,62 @@ uint32_t cardidentifier = 0;
     // Found a card!
 
     Serial.print("Card detected #");
+  //  lcd.print("Card detected #");
     // turn the four byte UID of a mifare classic into a single variable #
     cardidentifier = uid[3];
     cardidentifier <<= 8; cardidentifier |= uid[2];
     cardidentifier <<= 8; cardidentifier |= uid[1];
     cardidentifier <<= 8; cardidentifier |= uid[0];
-    Serial.println(cardidentifier);
+   // Serial.println(cardidentifier);
+  //  lcd.setCursor(4,2);
+  //  lcd.println(cardidentifier);
+  //  delay(1000);
+   // lcd.clear();
 
-    if (cardidentifier == 3125958404) { //update with your RFID identifier!
-      Serial.println("raise the roof");
-  }
-    else {
-      if (cardidentifier == 3133235204) { 
+   //ITEM ORDER 1)Sword 2)Shield 3)Spear 4)Hammer 5)Arrow 6) Axe
 
-                          //3125958404-SWORD
-                          //3127009540-SHEILD
-                          //
-        Serial.println("go home");
+ if (cardidentifier == 3125958484) { //SWORD - STEEL
         lcd.setCursor(4,2);
-        lcd.print("MAGNESIUM");
+        lcd.print("STEEL");
         delay(1000);
         lcd.clear();
-    }
-        
+  }
+ if (cardidentifier == 3127009540) { //SHIELD - IRON
+        lcd.setCursor(4,2);
+        lcd.print("IRON");
+        delay(1000);
+        lcd.clear();
+    }   
+  
+ if (cardidentifier == 2762283616) {//SPEAR - TITANIUM                     
+        lcd.setCursor(4,2);
+        lcd.print("TITANIUM");
+        delay(1000);
+        lcd.clear();
+    } 
+      
+ if (cardidentifier == 3134807044) { //HAMMER - SILVER                     
+        lcd.setCursor(4,2);
+        lcd.print("SILVER");
+        delay(1000);
+        lcd.clear();
+    }   
+    
+ if (cardidentifier == 3131577860) { //ARROW - GOLD                
+        lcd.setCursor(4,2);
+        lcd.print("GOLD");
+        delay(1000);
+        lcd.clear();
+     }
 
-        
+ if (cardidentifier == 2762629888) { //AXE - ALUMINIUM                
+        lcd.setCursor(4,2);
+        lcd.print("ALUMINIUM");
+        delay(1000);
+        lcd.clear();
+     }
+ 
       }
-
-    }
 }
 
 
