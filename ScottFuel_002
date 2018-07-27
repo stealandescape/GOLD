@@ -1,0 +1,274 @@
+#include <SPI.h>
+#include <Adafruit_VS1053.h>
+#include <SD.h>
+#define BREAKOUT_RESET  9      // VS1053 reset pin (output)
+#define BREAKOUT_CS     10     // VS1053 chip select pin (output)
+#define BREAKOUT_DCS    8      // VS1053 Data/command select pin (output)
+#define SHIELD_CS     7      // VS1053 chip select pin (output)
+#define SHIELD_DCS    6      // VS1053 Data/command select pin (output)
+#define CARDCS 4     // Card chip select pin
+#define DREQ 3       // VS1053 Data request, ideally an Interrupt pin
+
+Adafruit_VS1053_FilePlayer musicPlayer =  Adafruit_VS1053_FilePlayer(SHIELD_CS, SHIELD_DCS, DREQ, CARDCS);
+
+int signal001 =  21; //track001 - Power level status. Emergency. 10 minutes of emergency power remaining.
+int signal002 =  22; //track002 - Command Center status – offline 
+int signal003 =  23; //track003 - Oxygen Status – Emergency
+int signal004 =  24; //track004 Temperature status – 55 degrees
+int signal005 =  25; //track005  Restart generator to unlock Command Center
+int signal006 =  26; //track006  Fill generator fuel tank to power Command Center
+int signal007 =  27; //track007  Command Center status - online
+int signal008 =  28; //track008  Minimal options avaliable in emergency mode
+int signal009 =  29; //track009  Generator fuel tank - 100%
+int signal010 =  30; //track010  Generator fuel tank - 75%
+int signal011 =  31; //track011  Generator fuel tank - 50%
+int signal012 = 32; //track012  Generator fuel tank - 25%
+int signal013 = 33; //track013  Generator tank nearly depleted
+int signal014 = 34; //track014  Emergency transmission 
+int signal015 = 35; //track015  All command center options are now avaliable
+int signal016 = 36; //track016  Oxygen tanks - 50%
+int signal017 = 37; //track017  emergency  
+int signal018 = 38; //track018  Temperature status – 35 degrees
+int signal019 = 39; //track019  monitor one avaliable
+int signal020 = 40; //track020  monitor two avaliable
+int signal021 = 41; //
+
+
+int ActualSignal001Played;
+int ActualSignal002Played;
+int ActualSignal003Played;
+int ActualSignal004Played;
+int ActualSignal005Played;
+int ActualSignal006Played;
+int ActualSignal007Played;
+int ActualSignal008Played;
+int ActualSignal009Played;
+int ActualSignal010Played;
+int ActualSignal011Played;
+int ActualSignal012Played;
+int ActualSignal013Played;
+int ActualSignal014Played;
+int ActualSignal015Played;
+int ActualSignal016Played;
+int ActualSignal017Played;
+int ActualSignal018Played;
+int ActualSignal019Played;
+int ActualSignal020Played;
+
+
+/*
+#define PIN_MONITOR_1   22    Ahese are the inputs coming from the Command Center
+#define PIN_MONITOR_2   24
+#define PIN_MONITOR_3   26
+#define PIN_OXYGEN      28
+#define PIN_DOOR        30
+#define PIN_LIGH_1      32
+#define PIN_LIGH_2      34
+#define PIN_LIGH_3      36
+#define PIN_LIGH_4      38
+#define PIN_CAMERA_1    40
+#define PIN_CAMERA_2    42
+ */
+
+void setup() {
+
+  Serial.begin(9600);
+
+  
+  pinMode(21, INPUT); //Power level status. Emergency. 10 minutes of emergency power 
+  pinMode(22, INPUT); //Command Center status – offline 
+  pinMode(23, INPUT); //Oxygen Status – Emergency
+  pinMode(24, INPUT); //Temperature status – 55 degrees
+  pinMode(25, INPUT); //Restart generator to unlock Command Center
+  pinMode(26, INPUT); //Fill generator fuel tank to power Command Center
+  pinMode(27, INPUT); //Command Center status - online
+  pinMode(28, INPUT); //Minimal options avaliable in emergency mode
+  pinMode(29, INPUT); //Generator fuel tank - 100%
+  pinMode(30, INPUT); //Generator fuel tank - 75%
+  pinMode(31, INPUT); //Generator fuel tank - 50%
+  pinMode(32, INPUT); //Generator fuel tank - 25%
+  pinMode(33, INPUT); //Generator tank nearly depleted
+  pinMode(34, INPUT); //Emergency transmission 
+  pinMode(35, INPUT); //All command center options are now avaliable
+  pinMode(36, INPUT); //Oxygen tanks - 50%
+  pinMode(37, INPUT); //emergency  
+  pinMode(38, INPUT); //Temperature status – 35 degrees
+  pinMode(39, INPUT); //monitor one avaliable
+  pinMode(40, INPUT); //monitor two avaliable
+  pinMode(41, INPUT); //sets the ledPin to be an output
+
+  pinMode(fuelFull, INPUT);
+  digitalWrite(fuelFull, LOW);
+
+  pinMode(poles, INPUT);
+  digitalWrite(poles, LOW);
+  
+if (! musicPlayer.begin())
+  { Serial.println(F("Couldn't find VS1053, do you have the right pins defined?"));
+     while (1);
+  }
+  Serial.println(F("VS1053 found"));
+  SD.begin(CARDCS);   
+  
+  // Set volume for left, right channels. lower numbers == louder volume!
+  musicPlayer.setVolume(5,5);
+  musicPlayer.sineTest(0x44, 500);
+  //  musicPlayer.playFullFile("track001.mp3");
+  //  musicPlayer.playFullFile("track002.mp3");
+  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
+
+}
+  void loop()
+  { 
+    int ActualSignal001 = digitalRead(signal001);
+    int ActualSignal002 = digitalRead(signal002);
+    int ActualSignal003 = digitalRead(signal003);
+    int ActualSignal004 = digitalRead(signal004);
+    int ActualSignal005 = digitalRead(signal005);
+    int ActualSignal006 = digitalRead(signal006);
+    int ActualSignal007 = digitalRead(signal007);
+    int ActualSignal008 = digitalRead(signal008);
+    int ActualSignal009 = digitalRead(signal009);
+    int ActualSignal010 = digitalRead(signal010);
+    int ActualSignal011 = digitalRead(signal011);
+    int ActualSignal012 = digitalRead(signal012);
+    int ActualSignal013 = digitalRead(signal013);
+    int ActualSignal014 = digitalRead(signal014);
+    int ActualSignal015 = digitalRead(signal015);
+    int ActualSignal016 = digitalRead(signal016);
+    int ActualSignal017 = digitalRead(signal017);
+    int ActualSignal018 = digitalRead(signal018);
+    int ActualSignal019 = digitalRead(signal019);
+    int ActualSignal020 = digitalRead(signal020);
+    int ActualSignal021 = digitalRead(signal021);
+    
+    
+    //Serial.print("FuelOn: ");
+    //Serial.println(fuelFullActual);
+    
+     // ************THIS SECTION IS FOR PLAYING MUSIC******************** //
+     
+    //Track 001 - Power level status. Emergency. 10 minutes of emergency power 
+    
+     if (ActualSignal001 == 1 && ActualSignal001Played <= 0 ) { 
+        musicPlayer.playFullFile("track001.mp3");
+        ActualSignal001Played ++ ; }
+
+     //track002 - Command Center status – offline  
+    
+     if (ActualSignal002 == 1 && ActualSignal002Played <= 0 ) { 
+        musicPlayer.playFullFile("track002.mp3");
+        ActualSignal002Played ++ ; }
+
+     //track003 - Oxygen Status – Emergency  
+    
+     if (ActualSignal003 == 1 && ActualSignal003Played <= 0 ) { 
+        musicPlayer.playFullFile("track003.mp3");
+        ActualSignal003Played ++ ; }
+
+     //track004 Temperature status – 55 degrees  
+    
+     if (ActualSignal004 == 1 && ActualSignal004Played <= 0 ) { 
+        musicPlayer.playFullFile("track004.mp3");
+        ActualSignal004Played ++ ; }
+
+     //track005  Restart generator to unlock Command Center  
+    
+     if (ActualSignal005 == 1 && ActualSignal005Played <= 0 ) { 
+        musicPlayer.playFullFile("track005.mp3");
+        ActualSignal005Played ++ ; }
+
+     //track006  Fill generator fuel tank to power Command Center  
+    
+     if (ActualSignal006 == 1 && ActualSignal006Played <= 0 ) { 
+        musicPlayer.playFullFile("track006.mp3");
+        ActualSignal006Played ++ ; }
+
+     //track007  Command Center status - online  
+    
+     if (ActualSignal007 == 1 && ActualSignal007Played <= 0 ) { 
+        musicPlayer.playFullFile("track007.mp3");
+        ActualSignal007Played ++ ; }
+
+     //track008  Minimal options avaliable in emergency mode  
+    
+     if (ActualSignal008 == 1 && ActualSignal008Played <= 0 ) { 
+        musicPlayer.playFullFile("track008.mp3");
+        ActualSignal008Played ++ ; }
+
+     //track009  Generator fuel tank - 100%  
+    
+     if (ActualSignal009 == 1 && ActualSignal009Played <= 0 ) { 
+        musicPlayer.playFullFile("track009.mp3");
+        ActualSignal009Played ++ ; }
+
+     //track010  Generator fuel tank - 75%  
+    
+     if (ActualSignal010 == 1 && ActualSignal010Played <= 0 ) { 
+        musicPlayer.playFullFile("track010.mp3");
+        ActualSignal010Played ++ ; }
+
+     //track011  Generator fuel tank - 50%  
+    
+     if (ActualSignal011 == 1 && ActualSignal011Played <= 0 ) { 
+        musicPlayer.playFullFile("track011.mp3");
+        ActualSignal011Played ++ ; }
+
+     //track012  Generator fuel tank - 25%  
+    
+     if (ActualSignal012 == 1 && ActualSignal012Played <= 0 ) { 
+        musicPlayer.playFullFile("track012.mp3");
+        ActualSignal012Played ++ ; }
+
+     //track013  Generator tank nearly depleted  
+    
+     if (ActualSignal013 == 1 && ActualSignal013Played <= 0 ) { 
+        musicPlayer.playFullFile("track013.mp3");
+        ActualSignal013Played ++ ; }
+
+     //track014  Emergency transmission  
+    
+     if (ActualSignal014 == 1 && ActualSignal014Played <= 0 ) { 
+        musicPlayer.playFullFile("track014.mp3");
+        ActualSignal014Played ++ ; }
+
+     //track015  All command center options are now avaliable  
+    
+     if (ActualSignal015 == 1 && ActualSignal015Played <= 0 ) { 
+        musicPlayer.playFullFile("track015.mp3");
+        ActualSignal015Played ++ ; }
+
+     //track016  Oxygen tanks - 50%  
+    
+     if (ActualSignal016 == 1 && ActualSignal016Played <= 0 ) { 
+        musicPlayer.playFullFile("track016.mp3");
+        ActualSignal016Played ++ ; }
+
+     //track017  emergency    
+    
+     if (ActualSignal017 == 1 && ActualSignal017Played <= 0 ) { 
+        musicPlayer.playFullFile("track017.mp3");
+        ActualSignal017Played ++ ; }
+
+     //track018  Temperature status – 35 degrees    
+    
+     if (ActualSignal018 == 1 && ActualSignal018Played <= 0 ) { 
+        musicPlayer.playFullFile("track018.mp3");
+        ActualSignal018Played ++ ; }
+
+     //track019  monitor one avaliable    
+    
+     if (ActualSignal019 == 1 && ActualSignal019Played <= 0 ) { 
+        musicPlayer.playFullFile("track019.mp3");
+        ActualSignal019Played ++ ; }
+
+     //track020  monitor two avaliable   
+    
+     if (ActualSignal020 == 1 && ActualSignal020Played <= 0 ) { 
+        musicPlayer.playFullFile("track020.mp3");
+        ActualSignal020Played ++ ; }
+ 
+ 
+   
+     
+  }
