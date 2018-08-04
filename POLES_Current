@@ -1,3 +1,5 @@
+//JUMPER PUZZLE, ALSO CALLED POLES PUZZLE. DATE: 04AUG2018 BUILT FOR UNO.
+
 #include <Keypad.h> //Library to build poles matrix //COM 13
 const byte ROWS = 6; //Six upper poles
 const byte COLS = 6; //Six lower poles
