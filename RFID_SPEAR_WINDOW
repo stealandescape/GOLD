@@ -1,4 +1,4 @@
-//0xF0, 0xCB, 0xD1, 0xA5
+//ARROW OUTPUT PIN 7 to INPUT PIN 36 on MUSIC Board
 
 #include <MFRC522.h> // Include of the RC522 Library
 #include "FastLED.h" // Include of the FastLED library
@@ -88,15 +88,16 @@ if (i == 3) { // if we made it to 4 loops then the Tag Serial numbers are matchi
 GoodTag="TRUE";
 } 
 }
-if (GoodTag == "TRUE" && shieldPlayed == 0){
+if (GoodTag == "TRUE" ) //&& shieldPlayed == 0
+{
   Serial.println(" ON");
   digitalWrite(7, HIGH);
  // delay(4000);
-  shieldPlayed ++;
+ // shieldPlayed ++;
 
 }
 else {
- // digitalWrite(7, LOW);
+  digitalWrite(7, LOW);
  // Serial.println("OFF");
  // delay(2000);
 
