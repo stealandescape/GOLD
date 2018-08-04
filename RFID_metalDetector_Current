@@ -1,4 +1,4 @@
-/* It is 25JUL2018. \. This code is to make
+/* It is 25JUL2018. Marketa and kids are in Czech Republic. This code is to make
  *  the metal detector read the objects on the ground in the western room and cards.
  *  
  */
@@ -7,8 +7,7 @@
 #include <Adafruit_PN532.h>
 #include <LiquidCrystal_I2C.h>
 #define PN532_SCK  (2)
-#define PN532_MOSI (3)
-#define PN532_SS   (4)
+#define PN532_MOSI (3define PN532_SS   (4)
 #define PN532_MISO (5)
 #define PN532_IRQ   (2)
 #define PN532_RESET (3)  // Not connected by default on the NFC 
@@ -83,7 +82,7 @@ uint32_t cardidentifier = 0;
   }
 
 
-    if (cardidentifier == 2764854576) { //update with your RFID identifier!
+    if (cardidentifier == 2764854576 || 3131577860) { //update with your RFID identifier!
       Serial.println("Arrow");  //gold
       lcd.setCursor(4,2);
       lcd.print("GOLD");
