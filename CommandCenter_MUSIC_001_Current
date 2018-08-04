@@ -33,7 +33,6 @@ int signal019 = 39; //track019  monitor one avaliable
 int signal020 = 40; //track020  monitor two avaliable
 int signal021 = 41; //
 
-
 int ActualSignal001Played;
 int ActualSignal002Played;
 int ActualSignal003Played;
@@ -55,7 +54,6 @@ int ActualSignal018Played;
 int ActualSignal019Played;
 int ActualSignal020Played;
 
-
 /*
 #define PIN_MONITOR_1   22    Ahese are the inputs coming from the Command Center
 #define PIN_MONITOR_2   24
@@ -69,12 +67,9 @@ int ActualSignal020Played;
 #define PIN_CAMERA_1    40
 #define PIN_CAMERA_2    42
  */
-
 void setup() {
+ Serial.begin(9600);
 
-  Serial.begin(9600);
-
-  
   pinMode(21, INPUT); //Power level status. Emergency. 10 minutes of emergency power 
   pinMode(22, INPUT); //Command Center status – offline 
   pinMode(23, INPUT); //Oxygen Status – Emergency
@@ -116,10 +111,8 @@ if (! musicPlayer.begin())
   //  musicPlayer.playFullFile("track001.mp3");
   //  musicPlayer.playFullFile("track002.mp3");
   musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
-
 }
-  void loop()
-  { 
+  void loop() { 
     int ActualSignal001 = digitalRead(signal001);
     int ActualSignal002 = digitalRead(signal002);
     int ActualSignal003 = digitalRead(signal003);
@@ -266,9 +259,4 @@ if (! musicPlayer.begin())
     
      if (ActualSignal020 == 1 && ActualSignal020Played <= 0 ) { 
         musicPlayer.playFullFile("track020.mp3");
-        ActualSignal020Played ++ ; }
- 
- 
-   
-     
-  }
+        ActualSignal020Played ++ ; } }
