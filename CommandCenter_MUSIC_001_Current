@@ -8,9 +8,7 @@
 #define SHIELD_DCS    6      // VS1053 Data/command select pin (output)
 #define CARDCS 4     // Card chip select pin
 #define DREQ 3       // VS1053 Data request, ideally an Interrupt pin
-
 Adafruit_VS1053_FilePlayer musicPlayer =  Adafruit_VS1053_FilePlayer(SHIELD_CS, SHIELD_DCS, DREQ, CARDCS);
-
 int signal001 =  21; //track001 - Power level status. Emergency. 10 minutes of emergency power remaining.
 int signal002 =  22; //track002 - Command Center status – offline 
 int signal003 =  23; //track003 - Oxygen Status – Emergency
@@ -53,9 +51,8 @@ int ActualSignal017Played;
 int ActualSignal018Played;
 int ActualSignal019Played;
 int ActualSignal020Played;
-
 /*
-#define PIN_MONITOR_1   22    Ahese are the inputs coming from the Command Center
+#define PIN_MONITOR_1   22    These are the inputs coming from the Command Center
 #define PIN_MONITOR_2   24
 #define PIN_MONITOR_3   26
 #define PIN_OXYGEN      28
@@ -69,7 +66,6 @@ int ActualSignal020Played;
  */
 void setup() {
  Serial.begin(9600);
-
   pinMode(21, INPUT); //Power level status. Emergency. 10 minutes of emergency power 
   pinMode(22, INPUT); //Command Center status – offline 
   pinMode(23, INPUT); //Oxygen Status – Emergency
@@ -91,27 +87,20 @@ void setup() {
   pinMode(39, INPUT); //monitor one avaliable
   pinMode(40, INPUT); //monitor two avaliable
   pinMode(41, INPUT); //sets the ledPin to be an output
-
   pinMode(fuelFull, INPUT);
   digitalWrite(fuelFull, LOW);
-
   pinMode(poles, INPUT);
   digitalWrite(poles, LOW);
-  
-if (! musicPlayer.begin())
+  if (! musicPlayer.begin())
   { Serial.println(F("Couldn't find VS1053, do you have the right pins defined?"));
-     while (1);
-  }
+     while (1); }
   Serial.println(F("VS1053 found"));
   SD.begin(CARDCS);   
-  
-  // Set volume for left, right channels. lower numbers == louder volume!
   musicPlayer.setVolume(5,5);
   musicPlayer.sineTest(0x44, 500);
   //  musicPlayer.playFullFile("track001.mp3");
   //  musicPlayer.playFullFile("track002.mp3");
-  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
-}
+  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int }
   void loop() { 
     int ActualSignal001 = digitalRead(signal001);
     int ActualSignal002 = digitalRead(signal002);
@@ -134,13 +123,9 @@ if (! musicPlayer.begin())
     int ActualSignal019 = digitalRead(signal019);
     int ActualSignal020 = digitalRead(signal020);
     int ActualSignal021 = digitalRead(signal021);
-    
-    
-    //Serial.print("FuelOn: ");
-    //Serial.println(fuelFullActual);
-    
+
      // ************THIS SECTION IS FOR PLAYING MUSIC******************** //
-     
+   
     //Track 001 - Power level status. Emergency. 10 minutes of emergency power 
     
      if (ActualSignal001 == 1 && ActualSignal001Played <= 0 ) { 
