@@ -1,4 +1,4 @@
-/* It is 25JUL2018. Marketa and kids are in Czech Republic. This code is to make
+/* It is 25JUL2018.  This code is to make
  *  the metal detector read the objects on the ground in the western room and cards.
  *  
  */
@@ -76,13 +76,20 @@ uint32_t cardidentifier = 0;
     cardidentifier <<= 8; cardidentifier |= uid[1];
     cardidentifier <<= 8; cardidentifier |= uid[0];
     Serial.println(cardidentifier);
-
+/*
     if (cardidentifier == 3125958404) { //update with your RFID identifier!
       Serial.println("raise the roof");
   }
+*/
 
+    if (cardidentifier == 2764854576) { //update with your RFID identifier!
+      Serial.println("Arrow");  //gold
+      lcd.setCursor(4,2);
+      lcd.print("GOLD");
+      delay(1000);
+      lcd.clear();  }
 
-    if (cardidentifier == 2764854576 || 3131577860) { //update with your RFID identifier!
+    if (cardidentifier == 3131577860) { //update with your RFID identifier!
       Serial.println("Arrow");  //gold
       lcd.setCursor(4,2);
       lcd.print("GOLD");
@@ -96,7 +103,21 @@ uint32_t cardidentifier = 0;
       delay(1000);
       lcd.clear();  }
 
+      if (cardidentifier == 3127009540) { //update with your RFID identifier!
+      Serial.println("Shield");  //Iron
+      lcd.setCursor(4,2);
+      lcd.print("IRON");
+      delay(1000);
+      lcd.clear();  }
+
     if (cardidentifier == 2781989872) { //update with your RFID identifier!
+      Serial.println("Spear");  //Titanium
+      lcd.setCursor(4,2);
+      lcd.print("TITANIUM");
+      delay(1000);
+      lcd.clear();  }
+
+    if (cardidentifier == 2762283616) { //update with your RFID identifier!
       Serial.println("Spear");  //Titanium
       lcd.setCursor(4,2);
       lcd.print("TITANIUM");
@@ -110,6 +131,13 @@ uint32_t cardidentifier = 0;
       delay(1000);
       lcd.clear();  }
 
+    if (cardidentifier == 3125958404) { //update with your RFID identifier!
+      Serial.println("sword");  //steel
+      lcd.setCursor(4,2);
+      lcd.print("STEEL");
+      delay(1000);
+      lcd.clear();  }
+
      if (cardidentifier == 2299077467) { //update with your RFID identifier!
       Serial.println("axe");  //Bronze
       lcd.setCursor(4,2);
@@ -117,7 +145,21 @@ uint32_t cardidentifier = 0;
       delay(1000);
       lcd.clear();  }
 
+     if (cardidentifier == 2762629888) { //update with your RFID identifier!
+      Serial.println("axe");  //Bronze
+      lcd.setCursor(4,2);
+      lcd.print("BRONZE");
+      delay(1000);
+      lcd.clear();  }
+
      if (cardidentifier == 2299980142) { //update with your RFID identifier!
+      Serial.println("hammer");  //Silver
+      lcd.setCursor(4,2);
+      lcd.print("SILVER");
+      delay(1000);
+      lcd.clear();  }
+
+     if (cardidentifier == 3134807044) { //update with your RFID identifier!
       Serial.println("hammer");  //Silver
       lcd.setCursor(4,2);
       lcd.print("SILVER");
