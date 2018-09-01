@@ -1,0 +1,288 @@
+#include <SPI.h>
+#include <Adafruit_VS1053.h>
+#include <SD.h>
+#define BREAKOUT_RESET  9      // VS1053 reset pin (output)
+#define BREAKOUT_CS     10     // VS1053 chip select pin (output)
+#define BREAKOUT_DCS    8      // VS1053 Data/command select pin (output)
+#define SHIELD_CS     7      // VS1053 chip select pin (output)
+#define SHIELD_DCS    6      // VS1053 Data/command select pin (output)
+#define CARDCS 4     // Card chip select pin
+#define DREQ 3       // VS1053 Data request, ideally an Interrupt pin
+Adafruit_VS1053_FilePlayer musicPlayer =  Adafruit_VS1053_FilePlayer(SHIELD_CS, SHIELD_DCS, DREQ, CARDCS);
+
+//declaring the pin for each button
+const int button1 = 36;  //SWORD - These are the INPUTs from RFIS sensors.
+const int button2 = 38;  //AXE
+const int button3 = 40; //SPEAR
+const int button4 = 42; //HAMMER
+const int button5 = 44; //ARROW
+const int button6 = 46; //SHIELD
+const int wrong = 48; //LIGHTS FOR WRONG ANSWER
+const int correct = 50; //LIGHTS FOR CORRECT ANSWER
+
+
+//declaring the pin for each led
+const int led1 =  22;  //SWORD
+const int led2 =  24;  //AXE
+const int led3 =  26;  //SPEAR
+const int led4 =  28;  //HAMMER
+const int led5 =  30;  //ARROW
+const int led6 =  32;  //SHIELD
+
+int ledState1 = 0; //holds whether or not a button has been pressed yet
+int ledState2 = 0; //gets reset when all six buttons are pressed
+int ledState3 = 0;
+int ledState4 = 0;
+int ledState5 = 0;
+int ledState6 = 0;
+
+int buttonsPressed = 0; //number of button
+int pressedButtons[] = {0, 0, 0, 0, 0, 0}; //records order of button
+
+const int correctOrder[] = {2, 4, 3, 6, 5, 1}; // correct order of buttons
+// CHANGE THIS TO CHANGE ORDER
+// OF BUTTONS
+
+
+
+void setup() {
+  
+  Serial.begin(9600);
+
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(led3, OUTPUT);
+  pinMode(led4, OUTPUT);
+  pinMode(led5, OUTPUT);
+  pinMode(led6, OUTPUT);
+
+  pinMode(wrong, OUTPUT);
+  pinMode(correct, OUTPUT);
+  //  pinMode(relay,OUTPUT);
+
+  // initialize the pushbutton pin as an input:
+  pinMode(button1, INPUT);
+  pinMode(button2, INPUT);
+  pinMode(button3, INPUT);
+  pinMode(button4, INPUT);
+  pinMode(button5, INPUT);
+  pinMode(button6, INPUT);
+  // digitalWrite(relay, HIGH);
+
+  digitalWrite (led1, HIGH);
+  digitalWrite (led2, HIGH);
+  digitalWrite (led3, HIGH);
+  digitalWrite (led4, HIGH);
+  digitalWrite (led5, HIGH);
+  digitalWrite (led6, HIGH);
+  digitalWrite (wrong, HIGH);
+  digitalWrite (correct, HIGH);
+
+
+
+
+
+  if (! musicPlayer.begin())
+  { Serial.println(F("Couldn't find VS1053, do you have the right pins defined?"));
+    while (1);
+  }
+  Serial.println(F("VS1053 found"));
+
+  SD.begin(CARDCS);    // initialise the SD card
+
+  // Set volume for left, right channels. lower numbers == louder volume!
+  musicPlayer.setVolume(1, 1);
+  musicPlayer.sineTest(0x44, 500);
+
+
+  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
+
+}
+void loop() {
+  
+ // musicPlayer.startPlayingFile("rain.mp3");
+  /*
+  int fail = 0;
+
+  if (fail >= 1)
+  { digitalWrite(led1, HIGH); //TURN LEDS BACK OFF
+    digitalWrite(led2, HIGH);
+    digitalWrite(led3, HIGH);
+    digitalWrite(led4, HIGH);
+    digitalWrite(led5, HIGH);
+    digitalWrite(led6, HIGH);
+
+    ledState1 = 0;           //RESET LEDS / BUTTON PRESSES
+    ledState2 = 0;
+    ledState3 = 0;
+    ledState4 = 0;
+    ledState5 = 0;
+    ledState6 = 0;
+
+    buttonsPressed = 0;
+    delay(4000);
+  }
+  */
+ // digitalWrite (correct, HIGH);
+  int buttonPin1Value = digitalRead(button1);
+  Serial.print("button1: ");
+  Serial.println(buttonPin1Value);
+  delay(500);
+
+  int buttonPin2Value = digitalRead(button2);
+  Serial.print("button2: ");
+  Serial.println(buttonPin2Value);
+  delay(500);
+
+  int buttonPin3Value = digitalRead(button3);
+  Serial.print("button3: ");
+  Serial.println(buttonPin3Value);
+  delay(500);
+
+  int buttonPin4Value = digitalRead(button4);
+  Serial.print("button4: ");
+  Serial.println(buttonPin4Value);
+  delay(500);
+
+  int buttonPin5Value = digitalRead(button5);
+  Serial.print("button5: ");
+  Serial.println(buttonPin5Value);
+  delay(500);
+
+  int buttonPin6Value = digitalRead(button6);
+  Serial.print("button6: ");
+  Serial.println(buttonPin6Value);
+  delay(500);
+
+  if (digitalRead(button1) == HIGH) { //If the button is pressed
+    if (ledState1 == 0) {               //Check if the button has been pressed / the led is on
+      digitalWrite(led1, LOW);     // turn on led
+      Serial.write("SWORD");
+      pressedButtons[buttonsPressed] = 1; //record button presss
+      buttonsPressed++;                   // update number of buttons pressed
+      ledState1 = 1;                      //record led state
+    }
+  }
+  if (digitalRead(button2) == HIGH) {
+    // turn LED on:
+    if (ledState2 == 0) {
+      digitalWrite(led2, LOW);
+      Serial.write("AXE");
+      pressedButtons[buttonsPressed] = 2;
+      buttonsPressed++;
+      ledState2 = 1;
+    }
+  }
+  if (digitalRead(button3) == HIGH) {
+    // turn LED on:
+    if (ledState3 == 0) {
+      digitalWrite(led3, LOW);
+      Serial.write("SPEAR");
+      pressedButtons[buttonsPressed] = 3;
+      buttonsPressed++;
+      ledState3 = 1;
+    }
+  }
+  if (digitalRead(button4) == HIGH) {
+    // turn LED on:
+    if (ledState4 == 0) {
+      digitalWrite(led4, LOW);
+      Serial.write("HAMMER");
+      pressedButtons[buttonsPressed] = 4;
+      buttonsPressed++;
+      ledState4 = 1;
+    }
+  }
+  if (digitalRead(button5) == HIGH) {
+    // turn LED on:
+    if (ledState5 == 0) {
+      digitalWrite(led5, LOW);
+      Serial.write("ARROW");
+      pressedButtons[buttonsPressed] = 5;
+      buttonsPressed++;
+      ledState5 = 1;
+    }
+  }
+  if (digitalRead(button6) == HIGH) {
+    // turn LED on:
+    if (ledState6 == 0) {
+      digitalWrite(led6, LOW);
+      Serial.write("SHIELD");
+      pressedButtons[buttonsPressed] = 6;
+      buttonsPressed++;
+      ledState6 = 1;
+    }
+  }
+
+  if (buttonsPressed == 6) { //Once all six buttons are pressed
+    boolean isCodeCorrect = true;  //Check if they are in
+    for (int y = 0; y < 6; y++) {         //the correct order
+      Serial.println(pressedButtons[y]);
+      if (pressedButtons[y] != correctOrder[y]) {
+        isCodeCorrect = false;
+      }
+    }
+    if (isCodeCorrect) { // IF CORRECT
+      for (int x = 0; x < 10; x++) { // DO THIS
+        musicPlayer.startPlayingFile("track005.mp3");
+        Serial.write("correct");
+        digitalWrite(correct, LOW);
+        
+
+      }
+    }
+    else { // IF INCORRECT
+        //  musicPlayer.playFullFile("track004.mp3");
+      for (int x = 0; x < 5; x++) { // DO THIS
+      //  musicPlayer.playFullFile("track004.mp3");
+        digitalWrite(wrong, LOW);
+        digitalWrite(led1, LOW);
+        delay(50);
+        digitalWrite(led2, LOW);
+        delay(50);
+        digitalWrite(led3, LOW);
+        delay(50);
+        digitalWrite(led4, LOW);
+        delay(50);
+        digitalWrite(led5, LOW);
+        delay(50);
+        digitalWrite(led6, LOW);
+        delay(50);
+        digitalWrite(led1, HIGH);
+        delay(50);
+        digitalWrite(led2, HIGH);
+        delay(50);
+        digitalWrite(led3, HIGH);
+        delay(50);
+        digitalWrite(led4, HIGH);
+        delay(50);
+        digitalWrite(led5, HIGH);
+        delay(50);
+        digitalWrite(led6, HIGH);
+        delay(50);
+        digitalWrite(wrong, HIGH);
+
+      }
+
+    }
+    digitalWrite(led1, HIGH); //TURN LEDS BACK OFF
+    digitalWrite(led2, HIGH);
+    digitalWrite(led3, HIGH);
+    digitalWrite(led4, HIGH);
+    digitalWrite(led5, HIGH);
+    digitalWrite(led6, HIGH);
+
+    ledState1 = 0;           //RESET LEDS / BUTTON PRESSES
+    ledState2 = 0;
+    ledState3 = 0;
+    ledState4 = 0;
+    ledState5 = 0;
+    ledState6 = 0;
+
+    buttonsPressed = 0;
+    delay(4000);
+
+  }
+}
+
+
