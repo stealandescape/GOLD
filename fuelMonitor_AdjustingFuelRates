@@ -1,0 +1,554 @@
+//************************************************************************************
+// Will send commands over a serial port to the unity engine for jasons escape room
+// Will keep track of fuel consumption in the escape room
+//************************************************************************************
+
+
+
+//************************************************************************************
+// defined constants
+
+#define BAUD_RATE   115200
+
+// which Serial port to communicate over
+//#define SERIAL SerialUSB //for usb enabled arduinos
+#define SERIAL Serial
+
+// define pin outputs
+#define PIN_LED 		    13 //normal built in led pin of arduino
+
+// define all the pins we are using as a digital inputs
+#define PIN_MONITOR_1   22 
+#define PIN_MONITOR_2	  24
+#define PIN_MONITOR_3	  26
+#define PIN_OXYGEN		  28
+#define PIN_DOOR		    30
+#define PIN_LIGH_1		  32
+#define PIN_LIGH_2		  34 
+#define PIN_LIGH_3		  36
+#define PIN_LIGH_4		  38
+#define PIN_CAMERA_1	  40
+#define PIN_CAMERA_2	  42
+
+#define PIN1_MONITOR_1   A5
+#define PIN1_MONITOR_2   A6
+#define PIN1_MONITOR_3   A7
+#define PIN1_OXYGEN      A8
+#define PIN1_DOOR        A9
+#define PIN1_LIGH_1      A10
+#define PIN1_LIGH_2      A11
+#define PIN1_LIGH_3      A12
+#define PIN1_LIGH_4      A13
+#define PIN1_CAMERA_1    A14
+#define PIN1_CAMERA_2    A15
+
+#define fuelSound        52
+
+#define LED_ON        HIGH //Led is active high
+#define LED_OFF       (!LED_ON)//led off is boolean opposite of "on"
+
+#define CIRCUIT_ON    LOW //define the pin state that means a circuit is considered "on"
+#define CIRCUIT_OFF   (!CIRCUIT_ON) //define off as the boolean opposite of "on"
+
+
+// define how much fuel each circuit will drain every second
+#define CONSUMPTION_RATE_MONITOR_1  99
+#define CONSUMPTION_RATE_MONITOR_2  99
+#define CONSUMPTION_RATE_MONITOR_3  50
+#define CONSUMPTION_RATE_OXYGEN     50
+#define CONSUMPTION_RATE_DOOR       50  //All of the numbers were 1 except for Furnace, it was 11 
+#define CONSUMPTION_RATE_LIGHT_1    50
+#define CONSUMPTION_RATE_LIGHT_2		50
+#define CONSUMPTION_RATE_LIGHT_3		50
+#define CONSUMPTION_RATE_LIGHT_4		50
+#define CONSUMPTION_RATE_CAMERA_1	  50
+#define CONSUMPTION_RATE_CAMERA_2	  50
+
+#define CONSUMPTION_RATE_FURNACE	  10 //this rate can never be turned off
+
+// the amount of fuel to start with every game
+#define STARTING_FUEL				        40000  //Original number was 39600 
+
+
+//************************************************************************************
+// variables
+
+// will be updated once every second with their fuel consumption rate;
+int consumption_monitor_1;
+int consumption_monitor_2;
+int consumption_monitor_3;
+int consumption_oxygen;
+int consumption_door;
+int consumption_light_1;
+int consumption_light_2;
+int consumption_light_3;
+int consumption_light_4;
+int consumption_camera_1;
+int consumption_camera_2;
+int consumption_furnace;
+
+long totalFuelRemaining;
+long fuelJustUsed;
+double fuelRemainingPercentage;
+
+// will store whether these sounds have been played or not
+// by default they have not been played
+bool sound_fuelRemaining_75_percent = false;
+bool sound_fuelRemaining_50_percent = false;
+bool sound_fuelRemaining_40_percent = false;
+bool sound_fuelRemaining_30_percent = false;
+bool sound_fuelRemaining_20_percent = false;
+bool sound_fuelRemaining_10_percent = false;
+bool sound_fuelRemaining_5_percent  = false;
+bool sound_fuelRemaining_3_percent  = false;
+bool sound_fuelRemaining_2_percent  = false;
+bool sound_fuelRemaining_1_percent  = false;
+bool sound_fuelRemaining_0_percent  = false;
+
+//************************************************************************************
+//functions
+
+void setup() 
+{ 
+	// initialize the led pin as an output.
+	pinMode(52, OUTPUT);     
+  pinMode(PIN_LED, OUTPUT);
+	//initialize pins as digital inputs
+	pinMode(PIN_MONITOR_1,  INPUT_PULLUP);
+	pinMode(PIN_MONITOR_2,  INPUT_PULLUP);
+	pinMode(PIN_MONITOR_3,  INPUT_PULLUP);
+	pinMode(PIN_OXYGEN,     INPUT_PULLUP);
+	pinMode(PIN_DOOR,       INPUT_PULLUP);
+	pinMode(PIN_LIGH_1,     INPUT_PULLUP);
+	pinMode(PIN_LIGH_2,     INPUT_PULLUP);
+	pinMode(PIN_LIGH_3,     INPUT_PULLUP);
+	pinMode(PIN_LIGH_4,     INPUT_PULLUP);
+	pinMode(PIN_CAMERA_1,   INPUT_PULLUP);
+	pinMode(PIN_CAMERA_2,   INPUT_PULLUP);
+
+  pinMode(PIN1_MONITOR_1,  OUTPUT);
+  pinMode(PIN1_MONITOR_2,  OUTPUT);
+  pinMode(PIN1_MONITOR_3,  OUTPUT);
+  pinMode(PIN1_OXYGEN,     OUTPUT);
+  pinMode(PIN1_DOOR,       OUTPUT);
+  pinMode(PIN1_LIGH_1,     OUTPUT);
+  pinMode(PIN1_LIGH_2,     OUTPUT);
+  pinMode(PIN1_LIGH_3,     OUTPUT);
+  pinMode(PIN1_LIGH_4,     OUTPUT);
+  pinMode(PIN1_CAMERA_1,   OUTPUT);
+  pinMode(PIN1_CAMERA_2,   OUTPUT);
+
+  digitalWrite(PIN1_MONITOR_1,  LOW);
+  digitalWrite(PIN1_MONITOR_2,  LOW);
+  digitalWrite(PIN1_MONITOR_3,  LOW);
+  digitalWrite(PIN1_OXYGEN,     LOW);
+  digitalWrite(PIN1_DOOR,       LOW);
+  digitalWrite(PIN1_LIGH_1,     LOW);
+  digitalWrite(PIN1_LIGH_2,     LOW);
+  digitalWrite(PIN1_LIGH_3,     LOW);
+  digitalWrite(PIN1_LIGH_4,     LOW);
+  digitalWrite(PIN1_CAMERA_1,   LOW);
+  digitalWrite(PIN1_CAMERA_2,   LOW);
+	SERIAL.begin(BAUD_RATE); // start the serial port at this baud rate  
+
+  // initalize the fuel tank to be full
+  totalFuelRemaining = STARTING_FUEL;
+ 
+}
+
+
+void loop() 
+{
+  // this sets the sample rate of our loop
+  // once a second
+  delay(1000);
+	
+	//*************************
+	// read each input pin to decide if a circuit is on
+	// save the amount of fuel that we just used up for each circuit
+	
+	if( digitalRead(PIN_MONITOR_1) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_monitor_1 = CONSUMPTION_RATE_MONITOR_1;
+    digitalWrite(PIN1_MONITOR_1, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_monitor_1 = 0;
+    digitalWrite(PIN1_MONITOR_1, LOW);
+	}
+
+	if( digitalRead(PIN_MONITOR_2) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_monitor_2 = CONSUMPTION_RATE_MONITOR_2;
+    digitalWrite(PIN1_MONITOR_2, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_monitor_2 = 0;
+    digitalWrite(PIN1_MONITOR_2, LOW);
+	}
+
+	if( digitalRead(PIN_MONITOR_3) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_monitor_3 = CONSUMPTION_RATE_MONITOR_3;
+    digitalWrite(PIN1_MONITOR_3, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_monitor_3 = 0;
+    digitalWrite(PIN1_MONITOR_3, HIGH);
+	}
+
+	if( digitalRead(PIN_OXYGEN) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_oxygen = CONSUMPTION_RATE_OXYGEN; //THIS HAS A DOUBLE SEMI-COLON, SHOULD IT BE THERE?
+    digitalWrite(PIN1_OXYGEN, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_oxygen = 0;
+    digitalWrite(PIN1_OXYGEN, LOW);
+	}
+
+	
+	if( digitalRead(PIN_DOOR) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_door = CONSUMPTION_RATE_DOOR;
+   digitalWrite(PIN1_DOOR, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_door = 0;
+   digitalWrite(PIN1_DOOR, LOW);
+	}
+	
+	if( digitalRead(PIN_LIGH_1) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_light_1 = CONSUMPTION_RATE_LIGHT_1;
+    digitalWrite(PIN1_LIGH_1, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_light_1 = 0;
+    digitalWrite(PIN1_LIGH_1, LOW);
+	}
+	
+	if( digitalRead(PIN_LIGH_2) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_light_2 = CONSUMPTION_RATE_LIGHT_2;
+   digitalWrite(PIN1_LIGH_2, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_light_2 = 0;
+    digitalWrite(PIN1_LIGH_2, LOW);
+	}
+	
+	if( digitalRead(PIN_LIGH_3) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_light_3 = CONSUMPTION_RATE_LIGHT_3;
+   digitalWrite(PIN1_LIGH_3, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_light_3 = 0;
+    digitalWrite(PIN1_LIGH_3, LOW);
+	}
+	
+	if( digitalRead(PIN_LIGH_4) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_light_4 = CONSUMPTION_RATE_LIGHT_4;
+   digitalWrite(PIN1_LIGH_4, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_light_4 = 0;
+    digitalWrite(PIN1_LIGH_4, LOW);
+	}
+	
+	if( digitalRead(PIN_CAMERA_1) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_camera_1 = CONSUMPTION_RATE_CAMERA_1;
+   digitalWrite(PIN1_CAMERA_1, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_camera_1 = 0;
+   digitalWrite(PIN1_CAMERA_1, LOW);
+	}
+	
+	if( digitalRead(PIN_CAMERA_2) == CIRCUIT_ON)
+	{
+		// set current fuel consumption equal to its consumption rate
+		consumption_camera_2 = CONSUMPTION_RATE_CAMERA_2;
+   digitalWrite(PIN1_CAMERA_2, HIGH);
+	}
+	else
+	{
+		// set current fuel consumption to zero
+		consumption_camera_2 = 0;
+   digitalWrite(PIN1_CAMERA_2, LOW);
+	}
+	
+	//*************************
+	// furnace is our phantom load, there is no way to turn it off
+	// will always have a fuel consumption
+	consumption_furnace = CONSUMPTION_RATE_FURNACE;
+
+	
+
+	//*************************
+	// update our total fuel supply left
+
+  // calculate all the fuel just consumed this second
+  fuelJustUsed = 0; //clear value from last go around
+	fuelJustUsed += consumption_monitor_1;
+	fuelJustUsed += consumption_monitor_2;
+	fuelJustUsed += consumption_monitor_3;
+	fuelJustUsed += consumption_oxygen;
+	fuelJustUsed += consumption_door;
+	fuelJustUsed += consumption_light_1;
+	fuelJustUsed += consumption_light_2;
+	fuelJustUsed += consumption_light_3;
+	fuelJustUsed += consumption_light_4;
+	fuelJustUsed += consumption_camera_1;
+	fuelJustUsed += consumption_camera_2;
+	fuelJustUsed += consumption_furnace;
+
+  // subtract all the current fuel consumptions from the total fuel remaining
+  totalFuelRemaining -= fuelJustUsed;
+
+  // make sure we do not have a negative fuel remaining result
+  // lowest fuel amount will be zero
+  if(totalFuelRemaining < 0)
+  {
+      totalFuelRemaining = 0;
+  }
+
+
+  //*************************
+  // calculate percentage of fuel remaining
+  if(totalFuelRemaining > 0)
+  {
+    fuelRemainingPercentage = ((double)totalFuelRemaining / (double)STARTING_FUEL) * (double)100;
+  }
+  else
+  {
+    fuelRemainingPercentage = 0;
+  }
+ 
+	//*************************
+	// send a formatted message to the gui
+	// message will send all the numbers separated by commas
+
+  // print the system time first
+  // can gauge how long a game has been running this way
+  SERIAL.print( ((millis() / 1000)/3600) % 60 );//hours    //0
+  SERIAL.print(":");
+  SERIAL.print( ((millis() / 1000)/60) % 60 ); //minutes
+  SERIAL.print(":");
+  SERIAL.print( (millis() / 1000) %60 ); //seconds
+
+  SERIAL.print(",");
+	SERIAL.print(consumption_monitor_1);  //1
+	SERIAL.print(",");
+	SERIAL.print(consumption_monitor_2); //2
+	SERIAL.print(",");
+	SERIAL.print(consumption_monitor_3);  //3
+	SERIAL.print(",");
+	SERIAL.print(consumption_oxygen);  //4
+	SERIAL.print(",");
+	SERIAL.print(consumption_door);  //5
+	SERIAL.print(",");
+	SERIAL.print(consumption_light_1); //6
+	SERIAL.print(",");
+	SERIAL.print(consumption_light_2); //7
+	SERIAL.print(",");
+	SERIAL.print(consumption_light_3); //8
+	SERIAL.print(",");
+	SERIAL.print(consumption_light_4); //9
+	SERIAL.print(",");
+	SERIAL.print(consumption_camera_1); //10
+	SERIAL.print(",");
+	SERIAL.print(consumption_camera_2); //11
+	SERIAL.print(",");
+	SERIAL.print(consumption_furnace); //12 Also called constantly On.
+	SERIAL.print(",");
+	SERIAL.print(totalFuelRemaining);  //13
+  SERIAL.print(",");
+  SERIAL.print(fuelRemainingPercentage); //14
+  SERIAL.print("%,");
+  
+  // print the time remaining at the current fuel consumption rate
+  int seconds = (totalFuelRemaining / fuelJustUsed) % 60;
+  int minutes = ((totalFuelRemaining / fuelJustUsed) / 60) % 60;
+  int hours   = ((totalFuelRemaining / fuelJustUsed) / 3600) % 60;
+
+  if(hours < 10)
+  {
+    SERIAL.print("0");
+  }
+  SERIAL.print(hours);
+  SERIAL.print(":");
+
+  if(minutes < 10)
+  {
+    SERIAL.print("0");
+  }
+  SERIAL.print(minutes);
+  SERIAL.print(":");
+
+  if(seconds < 10)
+  {
+    SERIAL.print("0");
+  }
+  SERIAL.print(seconds);
+  
+	SERIAL.println();
+	// wait until all the data has been sent out the serial port before continuing, may not be needed
+	SERIAL.flush(); 
+
+
+
+  //*************************
+  // play sounds based on amount of fuel remaining
+  // will make sure that we only play each sound once when we pass percentage threshold
+
+  if(fuelRemainingPercentage <= 75 && sound_fuelRemaining_75_percent == false )
+  {
+      sound_fuelRemaining_75_percent = true;
+
+      digitalWrite(PIN_LED, LED_ON); //for testing
+      digitalWrite(52, HIGH); //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 50 && sound_fuelRemaining_50_percent == false )
+  {
+      sound_fuelRemaining_50_percent = true;
+
+      digitalWrite(PIN_LED, LED_OFF); //for testing
+      digitalWrite(52, HIGH); //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 40 && sound_fuelRemaining_40_percent == false )
+  {
+      sound_fuelRemaining_40_percent = true;
+
+      digitalWrite(PIN_LED, LED_ON); //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 30 && sound_fuelRemaining_30_percent == false )
+  {
+      sound_fuelRemaining_30_percent = true;
+
+      digitalWrite(PIN_LED, LED_OFF); //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 20 && sound_fuelRemaining_20_percent == false )
+  {
+      sound_fuelRemaining_20_percent = true;
+
+      digitalWrite(PIN_LED, LED_ON); //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 10 && sound_fuelRemaining_10_percent == false )
+  {
+      sound_fuelRemaining_10_percent = true;
+
+      digitalWrite(PIN_LED, LED_OFF); //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 5 && sound_fuelRemaining_5_percent == false )
+  {
+      sound_fuelRemaining_5_percent = true;
+
+      digitalWrite(PIN_LED, LED_ON);  //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 3 && sound_fuelRemaining_3_percent == false )
+  {
+      sound_fuelRemaining_3_percent = true;
+
+      digitalWrite(PIN_LED, LED_OFF); //for testing   
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 2 && sound_fuelRemaining_2_percent == false )
+  {
+      sound_fuelRemaining_2_percent = true;
+
+      digitalWrite(PIN_LED, LED_ON); //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 1 && sound_fuelRemaining_1_percent == false )
+  {
+      sound_fuelRemaining_1_percent = true;
+
+      digitalWrite(PIN_LED, LED_OFF); //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+  else if(fuelRemainingPercentage <= 0 && sound_fuelRemaining_0_percent == false )
+  {
+      sound_fuelRemaining_0_percent = true;
+
+      digitalWrite(PIN_LED, LED_ON); //for testing
+
+      //!!!!!!!!!!!!!!
+      // add code here
+      // trigger this sound to be played
+  }
+
+  
+  
+
+}
