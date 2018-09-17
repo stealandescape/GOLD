@@ -1,0 +1,258 @@
+
+//declaring the pin for each button
+const int sword1 = 36;  //SWORD - These are the INPUTs from RFID sensors.
+const int axe2 = 38;  //AXE
+const int spear3 = 40; //SPEAR
+const int hammer4 = 42; //HAMMER
+const int arrow5 = 44; //ARROW
+const int shield6 = 46; //SHIELD
+
+const int wrong = 48; //LIGHTS FOR WRONG ANSWER
+const int correct = 50; //LIGHTS FOR CORRECT ANSWER
+
+
+//declaring the pin for each led
+const int swordLED1 =  22;  //SWORD
+const int axeLED2 =  24;  //AXE
+const int spearLED3 =  26;  //SPEAR
+const int hammerLED4 =  28;  //HAMMER
+const int arrowLED5 =  30;  //ARROW
+const int shieldLED6 =  32;  //SHIELD
+
+int ledState1 = 0; //holds whether or not a RFID tag has been placed on a sensor
+int ledState2 = 0; //gets reset when all six RFID tags are placed
+int ledState3 = 0;
+int ledState4 = 0;
+int ledState5 = 0;
+int ledState6 = 0;
+
+int rfidPlaced = 0; //number of RFID
+int placedRfid[] = {0, 0, 0, 0, 0, 0}; //records order that RFID Tags need to be placed
+
+const int correctOrder[] = {2, 3, 4, 5, 6, 1}; // correct order of RFID TAGS
+
+void setup() {
+  Serial.begin(9600);
+  // initialize the LED pin as an output:
+  Serial.println ("RFID_MASTER_WeaponCode_001 - Updated: 17SEP2018");
+  pinMode(swordLED1, OUTPUT);
+  pinMode(axeLED2, OUTPUT);
+  pinMode(spearLED3, OUTPUT);
+  pinMode(hammerLED4, OUTPUT);
+  pinMode(arrowLED5, OUTPUT);
+  pinMode(shieldLED6, OUTPUT);
+
+  pinMode(wrong, OUTPUT);
+  pinMode(correct, OUTPUT);
+
+
+  // initialize the RFID sensor pin as an input:
+  pinMode(sword1, INPUT);
+  pinMode(axe2, INPUT);
+  pinMode(spear3, INPUT);
+  pinMode(hammer4, INPUT);
+  pinMode(arrow5, INPUT);
+  pinMode(shield6, INPUT);
+
+  //Writes LED HIGH (because it is using relay. HIGH IS OFF
+  digitalWrite (swordLED1, HIGH);
+  digitalWrite (axeLED2, HIGH);
+  digitalWrite (spearLED3, HIGH);
+  digitalWrite (hammerLED4, HIGH);
+  digitalWrite (arrowLED5, HIGH);
+  digitalWrite (shieldLED6, HIGH);
+  digitalWrite (wrong, HIGH);
+  digitalWrite (correct, HIGH);
+}
+
+void loop() {
+
+  int fail;
+
+  if (fail >= 1)
+  { 
+    digitalWrite(swordLED1, HIGH); //TURN LEDS BACK OFF
+    digitalWrite(axeLED2, HIGH);
+    digitalWrite(spearLED3, HIGH);
+    digitalWrite(hammerLED4, HIGH);
+    digitalWrite(arrowLED5, HIGH);
+    digitalWrite(shieldLED6, HIGH);
+
+    ledState1 = 0;           //RESET LEDS / BUTTON PRESSES
+    ledState2 = 0;
+    ledState3 = 0;
+    ledState4 = 0;
+    ledState5 = 0;
+    ledState6 = 0;
+
+    rfidPlaced = 0;
+    delay(4000);
+  }
+
+  //THIS CODE IS TO TEST THE PINS AND SEE IF THEY ARE WORKING
+
+  /*
+  digitalWrite (correct, HIGH);
+  int buttonPin1Value = digitalRead(sword1);
+  Serial.print("sword1: ");
+  Serial.println(buttonPin1Value);
+  delay(500);
+
+  int buttonPin2Value = digitalRead(axe2);
+  Serial.print("axe2: ");
+  Serial.println(buttonPin2Value);
+  delay(500);
+
+  int buttonPin3Value = digitalRead(spear3);
+  Serial.print("spear3: ");
+  Serial.println(buttonPin3Value);
+  delay(500);
+
+  int buttonPin4Value = digitalRead(hammer4);
+  Serial.print("hammer4: ");
+  Serial.println(buttonPin4Value);
+  delay(500);
+
+  int buttonPin5Value = digitalRead(arrow5);
+  Serial.print("arrow5: ");
+  Serial.println(buttonPin5Value);
+  delay(500);
+
+  int buttonPin6Value = digitalRead(shield6);
+  Serial.print("shield6: ");
+  Serial.println(buttonPin6Value);
+  delay(500);
+
+  */
+
+   //MAIN CODE - 
+   
+  if (digitalRead(sword1) == HIGH) { //If the RFID tag has been Placed
+    if (ledState1 == 0) {               //Check if the RFID sensor has already been placed / the led is on
+      digitalWrite(swordLED1, LOW);     // turn on led
+      Serial.write("SWORD");
+      placedRfid[rfidPlaced] = 1; //record button presss
+      rfidPlaced++;                   // update number of buttons pressed
+      ledState1 = 1;                      //record led state
+    }
+  }
+  if (digitalRead(axe2) == HIGH) {
+    // turn LED on:
+    if (ledState2 == 0) {
+      digitalWrite(axeLED2, LOW);
+      Serial.write("AXE");
+      placedRfid[rfidPlaced] = 2;
+      rfidPlaced++;
+      ledState2 = 1;
+    }
+  }
+  if (digitalRead(spear3) == HIGH) {
+    // turn LED on:
+    if (ledState3 == 0) {
+      digitalWrite(spearLED3, LOW);
+      Serial.write("SPEAR");
+      placedRfid[rfidPlaced] = 3;
+      rfidPlaced++;
+      ledState3 = 1;
+    }
+  }
+  if (digitalRead(hammer4) == HIGH) {
+    // turn LED on:
+    if (ledState4 == 0) {
+      digitalWrite(hammerLED4, LOW);
+      Serial.write("HAMMER");
+      placedRfid[rfidPlaced] = 4;
+      rfidPlaced++;
+      ledState4 = 1;
+    }
+  }
+  if (digitalRead(arrow5) == HIGH) {
+    // turn LED on:
+    if (ledState5 == 0) {
+      digitalWrite(arrowLED5, LOW);
+      Serial.write("ARROW");
+      placedRfid[rfidPlaced] = 5;
+      rfidPlaced++;
+      ledState5 = 1;
+    }
+  }
+  if (digitalRead(shield6) == HIGH) {
+    // turn LED on:
+    if (ledState6 == 0) {
+      digitalWrite(shieldLED6, LOW);
+      Serial.write("SHIELD");
+      placedRfid[rfidPlaced] = 6;
+      rfidPlaced++;
+      ledState6 = 1;
+    }
+  }
+
+  if (rfidPlaced == 6) { //Once all six RFID tags have been placed
+    boolean isCodeCorrect = true;  //Check if they are in
+    for (int y = 0; y < 6; y++) {         //the correct order
+      Serial.println(placedRfid[y]);
+      if (placedRfid[y] != correctOrder[y]) {
+        isCodeCorrect = false;
+      }
+    }
+    if (isCodeCorrect) { // IF CORRECT
+      for (int x = 0; x < 10; x++) { // DO THIS
+
+        Serial.write("correct");
+        digitalWrite(correct, LOW);
+
+      }
+    }
+    else { // IF INCORRECT
+
+      for (int x = 0; x < 10; x++) { // DO THIS
+
+        digitalWrite(wrong, LOW);
+        digitalWrite(swordLED1, LOW);
+        delay(50);
+        digitalWrite(axeLED2, LOW);
+        delay(50);
+        digitalWrite(spearLED3, LOW);
+        delay(50);
+        digitalWrite(hammerLED4, LOW);
+        delay(50);
+        digitalWrite(arrowLED5, LOW);
+        delay(50);
+        digitalWrite(shieldLED6, LOW);
+        delay(50);
+        digitalWrite(swordLED1, HIGH);
+        delay(50);
+        digitalWrite(axeLED2, HIGH);
+        delay(50);
+        digitalWrite(spearLED3, HIGH);
+        delay(50);
+        digitalWrite(hammerLED4, HIGH);
+        delay(50);
+        digitalWrite(arrowLED5, HIGH);
+        delay(50);
+        digitalWrite(shieldLED6, HIGH);
+        delay(50);
+        fail ++;  //What is this Fail doing?
+      }
+      digitalWrite(wrong, HIGH);
+
+    }
+    digitalWrite(swordLED1, HIGH); //TURN LEDS BACK OFF
+    digitalWrite(axeLED2, HIGH);
+    digitalWrite(spearLED3, HIGH);
+    digitalWrite(hammerLED4, HIGH);
+    digitalWrite(arrowLED5, HIGH);
+    digitalWrite(shieldLED6, HIGH);
+
+    ledState1 = 0;           //RESET LEDS / BUTTON PRESSES
+    ledState2 = 0;
+    ledState3 = 0;
+    ledState4 = 0;
+    ledState5 = 0;
+    ledState6 = 0;
+
+    rfidPlaced = 0;
+    delay(4000);
+
+  }
+}
