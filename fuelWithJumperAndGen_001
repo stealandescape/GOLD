@@ -30,6 +30,8 @@
 #define PIN_CAMERA_1    40
 #define PIN_CAMERA_2    42
 
+
+
 #define jumper          44
 #define generatorFilled 46
 
@@ -55,30 +57,40 @@
 
 
 // define how much fuel each circuit will drain every second
-#define CONSUMPTION_RATE_MONITOR_1  11
-#define CONSUMPTION_RATE_MONITOR_2  12
-#define CONSUMPTION_RATE_MONITOR_3  13
-#define CONSUMPTION_RATE_OXYGEN     14
-#define CONSUMPTION_RATE_DOOR       15  //All of the numbers were 1 except for Furnace, it was 11 
-#define CONSUMPTION_RATE_LIGHT_1    16
-#define CONSUMPTION_RATE_LIGHT_2    17
-#define CONSUMPTION_RATE_LIGHT_3    18
-#define CONSUMPTION_RATE_LIGHT_4    19
-#define CONSUMPTION_RATE_CAMERA_1   20
-#define CONSUMPTION_RATE_CAMERA_2   21
+#define CONSUMPTION_RATE_MONITOR_1  20
+#define CONSUMPTION_RATE_MONITOR_2  25
+#define CONSUMPTION_RATE_MONITOR_3  30
+#define CONSUMPTION_RATE_OXYGEN     20
+#define CONSUMPTION_RATE_DOOR       30  //All of the numbers were 1 except for Furnace, it was 11 
+#define CONSUMPTION_RATE_LIGHT_1    10
+#define CONSUMPTION_RATE_LIGHT_2    30
+#define CONSUMPTION_RATE_LIGHT_3    10
+#define CONSUMPTION_RATE_LIGHT_4    15
+#define CONSUMPTION_RATE_CAMERA_1   25
+#define CONSUMPTION_RATE_CAMERA_2   30
 
-#define CONSUMPTION_RATE_FURNACE    22 //this rate can never be turned off
+#define CONSUMPTION_RATE_FURNACE    00 //this rate can never be turned off
 //#define CONSUMPTION_RATE_AIR        10 //this rate can never be turned off
 //#define CONSUMPTION_RATE_TEMP       10 //this rate can never be turned off
 
 // the amount of fuel to start with every game
-#define STARTING_FUEL               400000  //Original number was 39600 
+#define STARTING_FUEL               100000  //Original number was 39600 
 
 
 //************************************************************************************
 // variables
 
 // will be updated once every second with their fuel consumption rate;
+
+int color1 = 13;
+int color2 = 12;
+int color3 = 11;
+int color4 = 10;
+int color5 =  9;
+int color6 =  8;
+int color7 =  7;
+int color8 =  6;
+
 int consumption_monitor_1;
 int consumption_monitor_2;
 int consumption_monitor_3;
@@ -112,6 +124,9 @@ bool sound_fuelRemaining_2_percent  = false;
 bool sound_fuelRemaining_1_percent  = false;
 bool sound_fuelRemaining_0_percent  = false;
 
+boolean generatorOn = false;
+
+bool secondGas = false;
 //************************************************************************************
 //functions
 
@@ -134,6 +149,7 @@ void setup()
   pinMode(PIN_CAMERA_2,   INPUT_PULLUP);
 
   pinMode(jumper,                INPUT);
+  pinMode(generatorFilled,       INPUT);
 
   
 
@@ -170,22 +186,25 @@ void setup()
 
 void loop() 
 { 
-  int generatorPlayed;
-  int generatorOn;
   int jumperActual = digitalRead(jumper);
-  int generatorActual = digitalRead(generatorFilled);
 
-  if (generatorActual == 1 && generatorPlayed ==0)  {
-    generatorPlayed ++;
-    generatorOn = 1;
-    
+  if( digitalRead(generatorFilled) == HIGH){
+    generatorOn = true;
+  }
+
+  if(generatorOn == true){
+
+    if (secondGas == false) {
+      totalFuelRemaining = 300000;
+      secondGas = true;
     }
-
+  }
   // this sets the sample rate of our loop
   // once a second
   delay(1000);
 
-   while (generatorOn == 1) {
+ //  while (generatorOn == LOW) {
+  //  Serial.println("GENERATOR ON");
   //*************************
   // read each input pin to decide if a circuit is on
   // save the amount of fuel that we just used up for each circuit
@@ -575,11 +594,9 @@ void loop()
       // add code here
       // trigger this sound to be played
   }
-}
-else{ 
+//}
 
-}
-}
+
 /*
 void commandCenterOff() {
 
@@ -596,5 +613,43 @@ void commandCenterOff() {
    consumption_camera_2  = 0;
    consumption_furnace   = 0;
 
+}
+*/
+}
+/*
+}
+  else{
+    if( digitalRead(PIN_MONITOR_1) == CIRCUIT_ON)
+  {
+    // set current fuel consumption equal to its consumption rate
+    consumption_monitor_1 = CONSUMPTION_RATE_MONITOR_1;
+    digitalWrite(PIN1_MONITOR_1, HIGH);
+  }
+  else
+  {
+    // set current fuel consumption to zero
+    consumption_monitor_1 = 0;
+    digitalWrite(PIN1_MONITOR_1, LOW);
+  }
+
+  if( digitalRead(PIN_MONITOR_2) == CIRCUIT_ON)
+  {
+    // set current fuel consumption equal to its consumption rate
+    consumption_monitor_2 = CONSUMPTION_RATE_MONITOR_2;
+    digitalWrite(PIN1_MONITOR_2, HIGH);
+  }
+  else
+  {
+    // set current fuel consumption to zero
+    consumption_monitor_2 = 0;
+    digitalWrite(PIN1_MONITOR_2, LOW);
+
+    
+  SERIAL.print(consumption_monitor_1);  //1
+  SERIAL.print(",");
+  SERIAL.print(consumption_monitor_2); //2
+  SERIAL.println();
+  }
+  }
 }
 */
