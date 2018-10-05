@@ -1,3 +1,16 @@
+//MUSIC TRACKS
+
+//sRain.mp3  short rain
+//sThunder.mp3   short Thunder
+//ending.mp3  The final ending about which stone to choose
+//shield.mp3 World peace
+//sword.mp3 World Domination
+//spear.mp3 World Hunger
+//hammer.mp3 Advanced technology
+//axe.mp3 Homeless
+//arrow.mp3 selfesh
+
+
 #include <SPI.h>
 #include <Adafruit_VS1053.h>
 #include <SD.h>
@@ -10,14 +23,20 @@
 #define DREQ 3       // VS1053 Data request, ideally an Interrupt pin
 Adafruit_VS1053_FilePlayer musicPlayer =  Adafruit_VS1053_FilePlayer(SHIELD_CS, SHIELD_DCS, DREQ, CARDCS);
 
-//declaring the pin for each button
-const int sword1 = 36;  //SWORD - These are the INPUTs from RFID sensors.
-const int axe2 = 38;  //AXE
-const int spear3 = 40; //SPEAR
-const int hammer4 = 42; //HAMMER
-const int arrow5 = 44; //ARROW
-const int shield6 = 46; //SHIELD
-const int fakeSword = 48;
+//declaring the pin for each button - These are the INPUTs from RFID sensors.
+const int sword1 = 36;  //SWORD = STEEL
+const int axe2 = 38;  //AXE  = BRONZE
+const int spear3 = 40; //SPEAR = TITANIUM
+const int hammer4 = 42; //HAMMER = SILVER
+const int arrow5 = 44; //ARROW = GOLD
+const int shield6 = 46; //SHIELD = IRON
+
+const int axeCorrect = 47;
+const int spearCorrect = 45;
+const int swordCorrect = 43;
+const int hammerCorrect = 41;
+const int shieldCorrect = 39;
+const int arrowCorrect = 49;
 
 const int wrong = 48; //LIGHTS FOR WRONG ANSWER
 const int correct = 50; //LIGHTS FOR CORRECT ANSWER
@@ -31,6 +50,10 @@ const int hammerLED4 =  28;  //HAMMER
 const int arrowLED5 =  30;  //ARROW
 const int shieldLED6 =  32;  //SHIELD
 
+const int endRfid = 37; // This plays the end sound track.
+
+//axe, hammer , spear, arrow shield sword
+
 int ledState1 = 0; //holds whether or not a RFID tag has been placed on a sensor
 int ledState2 = 0; //gets reset when all six RFID tags are placed
 int ledState3 = 0;
@@ -41,7 +64,17 @@ int ledState6 = 0;
 int rfidPlaced = 0; //number of RFID
 int placedRfid[] = {0, 0, 0, 0, 0, 0}; //records order that RFID Tags need to be placed
 
-const int correctOrder[] = {2, 3, 4, 5, 6, 1}; // correct order of RFID TAGS
+const int correctOrder[] = {2, 4, 3, 6, 5, 1}; // correct order of RFID TAGS
+
+int isCorrectSpot[] = {0, 0, 0, 0, 0, 0};
+
+int swordPreviouslyOff;
+int shieldPreviouslyOff;
+int hammerPreviouslyOff;
+int spearPreviouslyOff;
+int arrowPreviouslyOff;
+int axePreviouslyOff;
+
 
 void setup() {
   Serial.begin(9600);
@@ -53,6 +86,8 @@ void setup() {
   pinMode(hammerLED4, OUTPUT);
   pinMode(arrowLED5,  OUTPUT);
   pinMode(shieldLED6, OUTPUT);
+
+  pinMode(endRfid,    OUTPUT);
 
   pinMode(wrong,     OUTPUT); // These are the Red LEDS under platforms
   pinMode(correct,   OUTPUT); // These are the lights above the trees
@@ -66,7 +101,13 @@ void setup() {
   pinMode(arrow5,  INPUT);
   pinMode(shield6, INPUT);
 
-  pinMode(fakeSword,  INPUT);
+  pinMode(arrowCorrect,  INPUT);
+  pinMode(swordCorrect, INPUT);
+  pinMode(axeCorrect, INPUT);
+  pinMode(spearCorrect, INPUT);
+  pinMode(hammerCorrect, INPUT);
+  pinMode(shieldCorrect, INPUT);
+
 
   //Writes LED HIGH (because it is using relay. HIGH IS OFF
   digitalWrite (swordLED1,  HIGH);
@@ -104,7 +145,15 @@ void setup() {
     Serial.println("playingTrack005.mp3");
     musicPlayer.stopped();
   */
+  //musicPlayer.playFullFile("ending.mp3");
+  //musicPlayer.playFullFile("shield.mp3");
+  //musicPlayer.playFullFile("sword.mp3");
+  //musicPlayer.playFullFile("spear.mp3");
+  //musicPlayer.playFullFile("hammer.mp3");
+  //musicPlayer.playFullFile("axe.mp3");
+  //musicPlayer.playFullFile("arrow.mp3");
 
+  //delay(20000);
 }
 void loop() {
   if (digitalRead(sword1) == HIGH) { //If the RFID tag has been Placed
@@ -115,6 +164,14 @@ void loop() {
       placedRfid[rfidPlaced] = 1; //record button presss
       rfidPlaced++;                   // update number of buttons pressed
       ledState1 = 1;                      //record led state
+      Serial.print("correct?");
+      Serial.print(digitalRead(swordCorrect));
+      if (digitalRead(swordCorrect) == HIGH) {
+        isCorrectSpot[1 - 1] = 1;
+      }
+      else {
+        isCorrectSpot[1 - 1] = 0;
+      }
     }
   }
 
@@ -127,6 +184,14 @@ void loop() {
       placedRfid[rfidPlaced] = 2;
       rfidPlaced++;
       ledState2 = 1;
+      Serial.print("correct?");
+      Serial.print(digitalRead(axeCorrect));
+      if (digitalRead(axeCorrect) == HIGH) {
+        isCorrectSpot[2 - 1] = 1;
+      }
+      else {
+        isCorrectSpot[2 - 1] = 0;
+      }
     }
   }
   if (digitalRead(spear3) == HIGH) {
@@ -138,6 +203,14 @@ void loop() {
       placedRfid[rfidPlaced] = 3;
       rfidPlaced++;
       ledState3 = 1;
+      Serial.print("correct?");
+      Serial.print(digitalRead(spearCorrect));
+      if (digitalRead(spearCorrect) == HIGH) {
+        isCorrectSpot[3 - 1] = 1;
+      }
+      else {
+        isCorrectSpot[3 - 1] = 0;
+      }
     }
   }
   if (digitalRead(hammer4) == HIGH) {
@@ -149,6 +222,14 @@ void loop() {
       placedRfid[rfidPlaced] = 4;
       rfidPlaced++;
       ledState4 = 1;
+      Serial.print("correct?");
+      Serial.print(digitalRead(hammerCorrect));
+      if (digitalRead(hammerCorrect) == HIGH) {
+        isCorrectSpot[4 - 1] = 1;
+      }
+      else {
+        isCorrectSpot[4 - 1] = 0;
+      }
     }
   }
   if (digitalRead(arrow5) == HIGH) {
@@ -160,6 +241,14 @@ void loop() {
       placedRfid[rfidPlaced] = 5;
       rfidPlaced++;
       ledState5 = 1;
+      Serial.print("correct?");
+      Serial.print(digitalRead(arrowCorrect));
+      if (digitalRead(arrowCorrect) == HIGH) {
+        isCorrectSpot[5 - 1] = 1;
+      }
+      else {
+        isCorrectSpot[5 - 1] = 0;
+      }
     }
   }
   if (digitalRead(shield6) == HIGH) {
@@ -171,6 +260,14 @@ void loop() {
       placedRfid[rfidPlaced] = 6;
       rfidPlaced++;
       ledState6 = 1;
+      Serial.print("correct?");
+      Serial.print(digitalRead(shieldCorrect));
+      if (digitalRead(shieldCorrect) == HIGH) {
+        isCorrectSpot[6 - 1] = 1;
+      }
+      else {
+        isCorrectSpot[6 - 1] = 0;
+      }
     }
   }
 
@@ -182,12 +279,32 @@ void loop() {
         isCodeCorrect = false;
       }
     }
-    if (isCodeCorrect) { // IF CORRECT
-      for (int x = 0; x < 10; x++) { // DO THIS
-
-        Serial.write("correct");
-        digitalWrite(correct, LOW);
+    for (int y = 0; y < 6; y++) {
+      Serial.print(y);
+      Serial.print(" state: ");
+      Serial.println(isCorrectSpot[y]);
+      if (isCorrectSpot[y] != 1) {
+        isCodeCorrect = false;
       }
+    }
+    if (isCodeCorrect) { // IF CORRECT
+
+
+      musicPlayer.playFullFile("ending.mp3");
+      delay(2000);
+      digitalWrite(endRfid, HIGH);
+      Serial.write("correct");
+     // endingTrack();
+      
+      rfidPlaced = 0;
+      ledState1 = 0;
+      ledState2 = 0;
+      ledState3 = 0;
+      ledState4 = 0;
+      ledState5 = 0;
+      ledState6 = 0;
+      delay(2000);
+
     }
     else {
       checkWrong();
@@ -196,40 +313,116 @@ void loop() {
 }
 void checkWrong()  {
 
-  musicPlayer.playFullFile("track004.mp3");
+  musicPlayer.playFullFile("sThunder.mp3");
   while (ledState1 == 1 || ledState2 == 1 || ledState3 == 1 || ledState4 == 1 || ledState5 == 1 || ledState6 == 1) {
     //musicPlayer.startPlayingFile("track004.mp3");
     // musicPlayer.playFullFile("track004.mp3");
     // Serial.println("playingTrack004_checkWrong.mp3");
+    delay(17);
 
     if (digitalRead(sword1) == LOW) {
-      digitalWrite(swordLED1, HIGH); //TURN LEDS BACK OFF
-      ledState1 = 0;
+      if (swordPreviouslyOff > 30) {
+        digitalWrite(swordLED1, HIGH); //TURN LEDS BACK OFF
+        ledState1 = 0;
+      }
+      else {
+        swordPreviouslyOff++;
+      }
     }
+    else {
+      swordPreviouslyOff = 0;
+    }
+
     if (digitalRead(axe2) == LOW) {
+      if (axePreviouslyOff > 30) {
+        digitalWrite(axeLED2, HIGH); //TURN LEDS BACK OFF
+        ledState2 = 0;
+      }
+      else {
+        axePreviouslyOff++;
+      }
+    }
+    else {
+      axePreviouslyOff = 0;
+    }
+
+    if (digitalRead(spear3) == LOW) {
+      if (spearPreviouslyOff > 30) {
+        digitalWrite(spearLED3, HIGH); //TURN LEDS BACK OFF
+        ledState3 = 0;
+      }
+      else {
+        spearPreviouslyOff++;
+      }
+    }
+    else {
+      spearPreviouslyOff = 0;
+    }
+
+    if (digitalRead(hammer4) == LOW) {
+      if (hammerPreviouslyOff > 30) {
+        digitalWrite(hammerLED4, HIGH); //TURN LEDS BACK OFF
+        ledState4 = 0;
+      }
+      else {
+        hammerPreviouslyOff++;
+      }
+    }
+    else {
+      hammerPreviouslyOff = 0;
+    }
+
+    if (digitalRead(arrow5) == LOW) {
+      if (arrowPreviouslyOff > 30) {
+        digitalWrite(arrowLED5, HIGH); //TURN LEDS BACK OFF
+        ledState5 = 0;
+      }
+      else {
+        arrowPreviouslyOff++;
+      }
+    }
+    else {
+      arrowPreviouslyOff = 0;
+    }
+
+    if (digitalRead(shield6) == LOW) {
+      if (shieldPreviouslyOff > 30) {
+        digitalWrite(shieldLED6, HIGH); //TURN LEDS BACK OFF
+        ledState6 = 0;
+      }
+      else {
+        shieldPreviouslyOff++;
+      }
+    }
+    else {
+      shieldPreviouslyOff = 0;
+    }
+
+    /*
+      if (digitalRead(axe2) == LOW) {
       digitalWrite(axeLED2, HIGH); //TURN LEDS BACK OFF
       ledState2 = 0;
-    }
-    if (digitalRead(spear3) == LOW) {
+      }
+      if (digitalRead(spear3) == LOW) {
       digitalWrite(spearLED3, HIGH); //TURN LEDS BACK OFF
       ledState3 = 0;
-    }
-    if (digitalRead(hammer4) == LOW) {
+      }
+      if (digitalRead(hammer4) == LOW) {
       digitalWrite(hammerLED4, HIGH); //TURN LEDS BACK OFF
       ledState4 = 0;
-    }
-    if (digitalRead(arrow5) == LOW) {
+      }
+      if (digitalRead(arrow5) == LOW) {
       digitalWrite(arrowLED5, HIGH); //TURN LEDS BACK OFF
       ledState5 = 0;
-    }
-    if (digitalRead(shield6) == LOW) {
+      }
+      if (digitalRead(shield6) == LOW) {
       digitalWrite(shieldLED6, HIGH); //TURN LEDS BACK OFF
       ledState6 = 0;
-    }
-
+      }
+    */
 
     rfidPlaced = 0;
-    delay (3000);
+    //delay (5000);
     Serial.println("LEAVING CHECK WRONG");
   }
 }
