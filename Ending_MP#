@@ -1,0 +1,106 @@
+//MUSIC TRACKS
+
+//sRain.mp3  short rain
+//sThunder.mp3   short Thunder
+//ending.mp3  The final ending about which stone to choose
+//shield.mp3 World peace
+//sword.mp3 World Domination
+//spear.mp3 World Hunger
+//hammer.mp3 Advanced technology
+//axe.mp3 Homeless
+//arrow.mp3 selfesh
+
+
+#include <SPI.h>
+#include <Adafruit_VS1053.h>
+#include <SD.h>
+#define BREAKOUT_RESET  9      // VS1053 reset pin (output)
+#define BREAKOUT_CS     10     // VS1053 chip select pin (output)
+#define BREAKOUT_DCS    8      // VS1053 Data/command select pin (output)
+#define SHIELD_CS     7      // VS1053 chip select pin (output)
+#define SHIELD_DCS    6      // VS1053 Data/command select pin (output)
+#define CARDCS 4     // Card chip select pin
+#define DREQ 3       // VS1053 Data request, ideally an Interrupt pin
+Adafruit_VS1053_FilePlayer musicPlayer =  Adafruit_VS1053_FilePlayer(SHIELD_CS, SHIELD_DCS, DREQ, CARDCS);
+
+//declaring the pin for each button - These are the INPUTs from RFID sensors.
+const int sword1 = A0;  //SWORD = STEEL
+const int axe2 = A1;  //AXE  = BRONZE
+const int spear3 = A2; //SPEAR = TITANIUM
+const int hammer4 = A3; //HAMMER = SILVER
+const int arrow5 = A4; //ARROW = GOLD
+const int shield6 = A5; //SHIELD = IRON
+
+const int endSound = 2;
+
+//axe, hammer , spear, arrow shield sword
+
+void setup() {
+  Serial.begin(9600);
+
+  // initialize the RFID sensor pin as an input:
+  pinMode(sword1,  INPUT);
+  pinMode(axe2,    INPUT);
+  pinMode(spear3,  INPUT);
+  pinMode(hammer4, INPUT);
+  pinMode(arrow5,  INPUT);
+  pinMode(shield6, INPUT);
+
+  pinMode(endSound, INPUT);
+  
+  if (! musicPlayer.begin())
+  { Serial.println(F("Couldn't find VS1053, do you have the right pins defined?"));
+    while (1);
+  }
+  Serial.println(F("VS1053 found"));
+
+  SD.begin(CARDCS);    // initialise the SD card
+
+  // Set volume for left, right channels. lower numbers == louder volume!
+  musicPlayer.setVolume(1, 1);
+  musicPlayer.sineTest(0x44, 500);
+
+  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
+
+  //musicPlayer.playFullFile("ending.mp3");
+  //musicPlayer.playFullFile("shield.mp3");
+  //musicPlayer.playFullFile("sword.mp3");
+  //musicPlayer.playFullFile("spear.mp3");
+  //musicPlayer.playFullFile("hammer.mp3");
+  //musicPlayer.playFullFile("axe.mp3");
+  //musicPlayer.playFullFile("arrow.mp3");
+
+  //delay(20000);
+}
+void loop() {
+
+  if (digitalRead(endSound) == HIGH) { //If the RFID tag has been Placed
+    Serial.print("endSound: ");
+    Serial.println(endSound);
+    musicPlayer.playFullFile("ending.mp3");
+  }
+  if (digitalRead(sword1) == HIGH) { //If the RFID tag has been Placed
+    //Serial.println(sword1);
+    musicPlayer.playFullFile("sword.mp3");
+  }
+
+  if (digitalRead(axe2) == HIGH) {
+    musicPlayer.playFullFile("axe.mp3");
+  }
+
+  if (digitalRead(spear3) == HIGH) {
+    musicPlayer.playFullFile("spear.mp3");
+  }
+
+  if (digitalRead(hammer4) == HIGH) {
+    musicPlayer.playFullFile("hammer.mp3");
+  }
+
+  if (digitalRead(arrow5) == HIGH) {
+    musicPlayer.playFullFile("arrow.mp3");
+  }
+
+  if (digitalRead(shield6) == HIGH) {
+    musicPlayer.playFullFile("shield.mp3");
+  }
+}
