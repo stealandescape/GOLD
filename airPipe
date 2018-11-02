@@ -23,3 +23,68 @@ digitalWrite(ledPin, LOW);
 Serial.println("LOW");
 }
 }
+
+********************************************************************************************************************************
+
+
+
+        
+      #define ledPin 13
+#define avoidPin1 A0
+#define avoidPin2 A1
+#define avoidPin3 A2
+#define avoidPin4 A3
+#define avoidPin5 A4
+
+void setup()
+{
+  Serial.begin(9600);
+pinMode(ledPin, OUTPUT);
+pinMode(avoidPin1, INPUT);
+pinMode(avoidPin2, INPUT);
+pinMode(avoidPin3, INPUT);
+pinMode(avoidPin4, INPUT);
+pinMode(avoidPin5, INPUT);
+}
+
+void loop()
+{
+int avoidVal1 = analogRead(avoidPin1);
+int avoidVal2 = analogRead(avoidPin2);
+int avoidVal3 = analogRead(avoidPin3);
+int avoidVal4 = analogRead(avoidPin4);
+int avoidVal5 = analogRead(avoidPin5);
+
+Serial.print("avoidVal1: ");
+Serial.println(avoidVal1);
+delay(500);
+
+Serial.print("avoidVal2: ");
+Serial.println(avoidVal2);
+delay(500);
+
+Serial.print("avoidVal3: ");
+Serial.println(avoidVal3);
+delay(500);
+
+Serial.print("avoidVal4: ");
+Serial.println(avoidVal4);
+delay(500);
+
+Serial.print("avoidVal5: ");
+Serial.println(avoidVal5);
+delay(500);
+
+
+
+if(avoidVal1 == LOW)
+{
+digitalWrite(ledPin, HIGH);
+
+}
+else
+{
+digitalWrite(ledPin, LOW);
+
+}
+}
