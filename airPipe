@@ -1,0 +1,25 @@
+#define ledPin 13
+#define avoidPin A0
+
+void setup()
+{
+  Serial.begin(9600);
+pinMode(ledPin, OUTPUT);
+pinMode(avoidPin, INPUT);
+}
+
+void loop()
+{
+int avoidVal = analogRead(avoidPin);
+Serial.println(avoidVal);
+if(avoidVal == LOW)
+{
+digitalWrite(ledPin, HIGH);
+Serial.println("HIGH");
+}
+else
+{
+digitalWrite(ledPin, LOW);
+Serial.println("LOW");
+}
+}
