@@ -1,0 +1,193 @@
+
+
+#define SERIAL Serial
+#define avoidPin1 A0 //Bottom-Middle
+#define avoidPin2 A1 //Middle-Middle
+#define avoidPin3 A2 //Top-Middle
+#define avoidPin4 A3 //Far-Right
+#define avoidPin5 A4 //Far-left
+
+int startAirPuzzleOutput  = 8;
+int qualityTestOutput     = 9;
+int filterTestOutput      = 10;
+int dispersionOutput      = 11;
+
+
+int avoidVal1 = analogRead(avoidPin1);
+int avoidVal2 = analogRead(avoidPin2);
+int avoidVal3 = analogRead(avoidPin3);
+int avoidVal4 = analogRead(avoidPin4);
+int avoidVal5 = analogRead(avoidPin5);
+
+bool quality    = false;
+bool filter     = false;
+bool dispersion = false;
+bool startAir   = false;
+
+
+void setup()
+{
+  Serial.begin(9600);
+
+  pinMode(avoidPin1, INPUT);
+  pinMode(avoidPin2, INPUT);
+  pinMode(avoidPin3, INPUT);
+  pinMode(avoidPin4, INPUT);
+  pinMode(avoidPin5, INPUT);
+
+  pinMode(qualityTestOutput,       OUTPUT);
+  pinMode(filterTestOutput,        OUTPUT);
+  pinMode(dispersionOutput,        OUTPUT);
+  pinMode(startAirPuzzleOutput,    OUTPUT);
+
+  digitalWrite(qualityTestOutput,       LOW);
+  digitalWrite(filterTestOutput,        LOW);
+  digitalWrite(dispersionOutput,        LOW);
+  digitalWrite(startAirPuzzleOutput,    LOW);
+
+ // delay(10000);
+}
+
+void loop()
+{
+  int avoidVal1 = analogRead(avoidPin1);
+  int avoidVal2 = analogRead(avoidPin2);
+  int avoidVal3 = analogRead(avoidPin3);
+  int avoidVal4 = analogRead(avoidPin4);
+  int avoidVal5 = analogRead(avoidPin5);
+
+  SERIAL.print(avoidVal1);
+  SERIAL.print(",");
+  SERIAL.print(avoidVal2);
+  SERIAL.print(",");
+  SERIAL.print(avoidVal3);
+  SERIAL.print(",");
+  SERIAL.print(avoidVal4);
+  SERIAL.print(",");
+  SERIAL.print(avoidVal5);
+  SERIAL.println();
+
+  //Serial.println("QualityTest");
+/*
+  Serial.print("avoidVal1: ");
+  Serial.println(avoidVal1);
+  delay(500);
+
+  Serial.print("avoidVal2: ");
+  Serial.println(avoidVal2);
+  delay(500);
+
+  Serial.print("avoidVal3: ");
+  Serial.println(avoidVal3);
+  delay(500);
+
+  Serial.print("avoidVal4: ");
+  Serial.println(avoidVal4);
+  delay(500);
+
+  Serial.print("avoidVal5: ");
+  Serial.println(avoidVal5);
+  delay(500);
+
+*/
+
+if ((avoidVal1 >= 900) || (avoidVal2 >= 900) || (avoidVal3 >= 900) ||
+      (avoidVal4 >= 900) || (avoidVal5 >= 900)) {
+        if (startAir == false) {
+    Serial.println("STARTUP");
+    digitalWrite(startAirPuzzleOutput, HIGH);
+    delay(1000);
+    digitalWrite(startAirPuzzleOutput, LOW);
+    delay(1000);
+    digitalWrite(startAirPuzzleOutput, HIGH);
+    delay(1000);
+    digitalWrite(startAirPuzzleOutput, LOW);
+    delay(1000);
+   quality = true;
+   startAir = true;
+        }
+      }
+   
+  if (quality == true) {
+    //Serial.println("QualityTest");
+    qualityTest();
+
+  }
+
+  if (filter == true) {
+ //   Serial.println("FilterTest");
+    filterTest();
+  }
+
+
+  if (dispersion == true) {
+   // Serial.println("Dispersion");
+    dispersionTest();
+  }
+}
+
+void qualityTest() {
+ // Serial.println("i'M IN quality TEst Function");
+  int avoidVal1 = analogRead(avoidPin1);
+  int avoidVal2 = analogRead(avoidPin2);
+  int avoidVal3 = analogRead(avoidPin3);
+  int avoidVal4 = analogRead(avoidPin4);
+  int avoidVal5 = analogRead(avoidPin5);
+
+  if (avoidVal1 <= 100 && avoidVal2 >= 900 && avoidVal3 <= 100 &&
+      avoidVal4 >= 900 && avoidVal5 <= 100) {
+
+    digitalWrite(qualityTestOutput, HIGH);
+    delay(1000);
+    digitalWrite(qualityTestOutput, LOW);
+    delay(1000);
+    //delay(10000);
+    //digitalWrite(qualityTestOutput, HIGH);
+   // delay(500);
+   // digitalWrite(qualityTestOutput, LOW);
+    
+    Serial.println("QUALITY TEST COMPLETE");
+    quality = false;
+    filter = true;
+  }
+}
+
+void filterTest() {
+  int avoidVal1 = analogRead(avoidPin1);
+  int avoidVal2 = analogRead(avoidPin2);
+  int avoidVal3 = analogRead(avoidPin3);
+  int avoidVal4 = analogRead(avoidPin4);
+  int avoidVal5 = analogRead(avoidPin5);
+
+  if ((avoidVal1 <= 100) && (avoidVal2 <= 100) && (avoidVal3 <= 100) &&
+      (avoidVal4 >= 900) && (avoidVal5 >= 900)) {
+
+    digitalWrite(filterTestOutput, HIGH);
+    delay(1000);
+    digitalWrite(filterTestOutput, LOW);
+    delay(1000);
+
+    Serial.println("FILTER TEST COMPLETE");
+    filter = false;
+    dispersion = true;
+  }
+}
+
+void dispersionTest() {
+  int avoidVal1 = analogRead(avoidPin1);
+  int avoidVal2 = analogRead(avoidPin2);
+  int avoidVal3 = analogRead(avoidPin3);
+  int avoidVal4 = analogRead(avoidPin4);
+  int avoidVal5 = analogRead(avoidPin5);
+
+  if ((avoidVal1 >= 900) && (avoidVal2 <= 100) && (avoidVal3 >= 900) &&
+      (avoidVal4 <= 100) && (avoidVal5 >= 900)) {
+
+    digitalWrite(dispersionOutput, HIGH);
+    delay(1000);
+    digitalWrite(dispersionOutput, LOW);
+    delay(1000);
+    Serial.println("DISPERSION COMPLETE");
+    dispersion = false;
+  }
+}
