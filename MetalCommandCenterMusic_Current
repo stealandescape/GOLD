@@ -1,0 +1,365 @@
+//disper.mp3
+//airDone.mp3
+//filter.mp3
+//quality.mp3
+
+
+
+
+
+#include <SPI.h>
+#include <Adafruit_VS1053.h>
+#include <SD.h>
+#define BREAKOUT_RESET  9      // VS1053 reset pin (output)
+#define BREAKOUT_CS     10     // VS1053 chip select pin (output)
+#define BREAKOUT_DCS    8      // VS1053 Data/command select pin (output)
+#define SHIELD_CS       7      // VS1053 chip select pin (output)
+#define SHIELD_DCS      6      // VS1053 Data/command select pin (output)
+#define CARDCS          4     // Card chip select pin
+#define DREQ            3       // VS1053 Data request, ideally an Interrupt pin
+#define PIN_LED         13  //normal built in led pin of arduino
+
+#define LED_ON        HIGH //Led is active high
+#define LED_OFF       (!LED_ON)//led off is boolean opposite of "on"
+
+#define CIRCUIT_ON    LOW //define the pin state that means a circuit is considered "on"
+#define CIRCUIT_OFF   (!CIRCUIT_ON) //define off as the boolean opposite of "on"
+
+Adafruit_VS1053_FilePlayer musicPlayer =  Adafruit_VS1053_FilePlayer(SHIELD_CS, SHIELD_DCS, DREQ, CARDCS);
+
+int signal001 =  21; //track001 - Power level status. Emergency. 10 minutes of emergency power remaining.
+int signal002 =  22; //track002 - Command Center status – offline
+int signal003 =  25; //Generator has been filled. It's at 100%. INPUT FROM FUEL BARREL
+int signal050 =  24; //track004 Temperature status – 55 degrees
+int signal005 =  23; //track005  Restart generator to unlock Command Center
+int signal006 =  26; //track006  Fill generator fuel tank to power Command Center
+int signal007 =  27; //track007  Command Center status - online
+int signal008 =  28; //track008  Minimal options avaliable in emergency mode
+int signal009 =  29; //track009  Generator fuel tank - 100%
+int signal010 =  30; //track010  Generator fuel tank - 75%
+int signal011 =  31; //track011  Generator fuel tank - 50%
+int signal012 =  32; //track012  Generator fuel tank - 25%
+int signal013 =  33; //track013  Generator tank nearly depleted
+int signal014 =  34; //track014  Emergency transmission
+int signal015 =  35; //track015  All command center options are now avaliable
+int signal016 =  36; //track016  Oxygen tanks - 50%
+int signal017 =  37; //track017  emergency
+int signal018 =  47; //track018  Temperature status – 35 degrees
+int signal019 =  49; //gas @ 50%
+int signal020 =  51; //Primary fuel tank refilled. Additional lighting options available.
+int signal021 =  53; //gas @ 75%
+int signal022 =  41; //Emergency Fuel OFFLINE. Generator SOUND
+
+int airPuzzleStartInput =  42; //Emergency Fuel OFFLINE. Generator SOUND
+int signal023 =  20; //Oxygen
+int signal052 =  52; //AirPuzzleStart
+//int signal050 =  50; //AirQuality
+int airDispersionInput =  44; //AirQuality Finished
+int signal048 =  48; //AirFilter
+int signal046 =  46; //AirDispersion
+
+int ActualSignal001Played;
+int ActualSignal002Played;
+int ActualSignal003Played;
+int ActualSignal004Played;
+int ActualSignal005Played;
+int ActualSignal006Played;
+int ActualSignal007Played;
+int ActualSignal008Played;
+int ActualSignal009Played;
+int ActualSignal010Played;
+int ActualSignal011Played;
+int ActualSignal012Played;
+int ActualSignal013Played;
+int ActualSignal014Played;
+int ActualSignal015Played;
+int ActualSignal016Played;
+int ActualSignal017Played;
+int ActualSignal018Played;
+int ActualSignal019Played;
+int ActualSignal020Played;
+int ActualSignal021Played;
+int ActualSignal022Played;
+int ActualSignal023Played;
+/*
+  #define PIN_MONITOR_1   22    These are the inputs coming from the Command Center
+  #define PIN_MONITOR_2   24
+  #define PIN_MONITOR_3   26
+  #define PIN_OXYGEN      28
+  #define PIN_DOOR        30
+  #define PIN_LIGH_1      32
+  #define PIN_LIGH_2      34
+  #define PIN_LIGH_3      36
+  #define PIN_LIGH_4      38
+  #define PIN_CAMERA_1    40
+  #define PIN_CAMERA_2    42
+*/
+int airPuzzleStartPlayed = 0;
+bool airPuzzleStartCheck = false;
+
+int airQualityPlayed = 0;
+bool airQualityCheck = false;
+
+int airFilterPlayed = 0;
+bool airFilterCheck = false;
+
+int airDispersionPlayed = 0;
+bool airDispersionCheck = false;
+
+
+
+void setup() {
+
+  Serial.begin(9600);
+  Serial.println("i'm in Setup");
+  pinMode(21, INPUT); //
+  pinMode(21, INPUT); //
+  pinMode(22, INPUT_PULLUP); //Music for solving wire puzzle
+  pinMode(23, INPUT); //Generator has been filled. It's at 100%. INPUT FROM FUEL BARREL
+  pinMode(24, INPUT_PULLUP); //Temperature status – 55 degrees **trying is for fuel_Sound
+  pinMode(25, INPUT); //Restart generator to unlock Command Center
+  pinMode(26, INPUT); //Fill generator fuel tank to power Command Center
+  pinMode(27, INPUT); //MASTER FOR UNLOCKING JUMPER PUZZLE :007,008,019,020
+  pinMode(28, INPUT);
+  pinMode(29, INPUT); //MASTER FOR UNLOCKING FUEL :009,015
+  pinMode(30, INPUT); //Generator fuel tank - 75%
+  pinMode(31, INPUT); //Generator fuel tank - 50%
+  pinMode(32, INPUT); //Generator fuel tank - 25%
+  pinMode(33, INPUT); //Generator tank nearly depleted
+  pinMode(34, INPUT); //Emergency transmission
+  pinMode(35, INPUT); //All command center options are now avaliable
+  pinMode(36, INPUT); //Oxygen tanks - 50%
+  pinMode(37, INPUT); //emergency
+  pinMode(38, INPUT); //Temperature status – 35 degrees
+  pinMode(39, INPUT); //monitor one avaliable
+  pinMode(40, INPUT); //monitor two avaliable
+  pinMode(41, INPUT_PULLUP); //Emergency Fuel OFFLINE. Generator SOUND
+  pinMode(airPuzzleStartInput, INPUT_PULLUP); //Emergency Fuel OFFLINE. Generator SOUND
+  pinMode(airDispersionInput, INPUT_PULLUP);
+ // pinMode(46, INPUT_PULLUP); //airPuzzleStart
+  pinMode(47, INPUT_PULLUP); //sets the ledPin to be an output
+  pinMode(53, INPUT_PULLUP); //gas75 signal 21
+  pinMode(51, INPUT_PULLUP); //gas50 signal 20
+  pinMode(49, INPUT_PULLUP); //gas25 signal 19
+
+
+  pinMode(52, INPUT_PULLUP); //AirPuzzleStart
+  pinMode(50, INPUT_PULLUP); //Quality
+  pinMode(48, INPUT_PULLUP); //Filter
+  pinMode(46, INPUT_PULLUP); //Disper Air
+
+
+
+
+  pinMode(A15, OUTPUT); // GAME START
+  pinMode(A14, OUTPUT); // FUEL
+
+  digitalWrite(53, LOW);
+  digitalWrite(51, LOW);
+  //digitalWrite(25, LOW);
+
+  if (! musicPlayer.begin())
+  { Serial.println(F("Couldn't find VS1053, do you have the right pins defined?"));
+    while (1);
+  }
+  Serial.println(F("VS1053 found"));
+  SD.begin(CARDCS);
+  musicPlayer.setVolume(30, 30);
+  // musicPlayer.sineTest(0x44, 500);
+
+  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
+  // Serial.println ("The LockDown has been played.");
+  //musicPlayer.playFullFile("lockDown.mp3");
+  //delay(10000);
+  //  musicPlayer.playFullFile("quality.mp3");
+  //musicPlayer.playFullFile("lockDown.mp3");
+  //Serial.println ("LockDown has been Played again.");
+  // delay(5000);
+}
+void loop() {
+  //Serial.println("i'm in Loop");
+  int ActualSignal001 = digitalRead(signal001);
+  int ActualSignal002 = digitalRead(signal002); //musicPlayer.playFullFile("normal.mp3");
+  int ActualSignal003 = digitalRead(signal003);
+  int ActualSignal021 = digitalRead(signal021);
+  int ActualSignal020 = digitalRead(signal020);
+  int ActualSignal019 = digitalRead(signal019); //GAS @ 50%
+  int ActualSignal018 = digitalRead(signal018);
+  int ActualSignal022 = digitalRead(signal022);
+
+  int ActualSignal052 = digitalRead(signal052); //AirPuzzleStart
+  int ActualSignal050 = digitalRead(signal050); //AirQuality
+  int ActualSignal048 = digitalRead(signal048); //AirFilter
+  int ActualSignal046 = digitalRead(signal046); //AirDispersion
+  int airDispersionInputActual = digitalRead(airDispersionInput);
+  int airPuzzleStartInputActual = digitalRead(airPuzzleStartInput);
+
+  //Serial.print("75% GAS STATUS: ");
+  //Serial.println(ActualSignal021);
+
+  // Serial.print("GENERATOR FILLED PUZZLE STATUS: ");
+  // Serial.println(ActualSignal003);
+
+  /// Serial.print("WIRE  PUZZLE STATUS: ");
+  // Serial.println(ActualSignal002);
+
+
+  //Serial.print("FUEL FILLED PLAYED: ");
+  // Serial.println(ActualSignal003);
+
+
+  // Serial.print("GENERATOR PLAYED: ");
+  // Serial.println (ActualSignal002);
+
+
+  // ************THIS SECTION IS FOR PLAYING MUSIC******************** //
+
+  //if (ActualSignal001 == 1 && ActualSignal001Played <= 0 ) {  //Track 001 - Power level status. Emergency. 10 minutes of emergency power
+
+  // ActualSignal001Played ++ ; }
+
+  if (ActualSignal002 == 1 && ActualSignal002Played <= 0 ) {  //Command Center in normal operations
+    musicPlayer.playFullFile("normal.mp3");
+    Serial.println("WIRE PUZZLE SOLVED ");
+    ActualSignal002Played ++ ;
+  }
+
+
+  if (ActualSignal022 == 1 && ActualSignal022Played <= 0 ) {  //track003 - Oxygen Status – Emergency
+
+    Serial.println("EMERGENCY GENERATOR: "); //Emergency Fuel OFFLINE. Generator SOUND
+    Serial.print(ActualSignal022);
+    musicPlayer.playFullFile("emerGen.mp3");
+    ActualSignal022Played ++ ;
+  }
+
+  if (ActualSignal021 == 1 && ActualSignal021Played <= 0 ) {  //track003 - Oxygen Status – Emergency
+    // musicPlayer.playFullFile("gas75.mp3");
+    Serial.println("GAS AT 75% PLAYED");
+    //digitalWrite(A15, LOW);
+   // delay(1000);
+    //digitalWrite(A15, HIGH);
+    ActualSignal021Played ++ ;
+  }
+
+  if (ActualSignal020 == 1 && ActualSignal020Played <= 0 ) {  //track003 - Oxygen Status – Emergency
+    // musicPlayer.playFullFile("gas50.mp3");
+    //  Serial.print("GAS AT 50% PLAYED");
+    //digitalWrite(A15, LOW);
+    //delay(1000);
+    // digitalWrite(A15, HIGH);
+    ActualSignal020Played ++ ;
+
+  }
+
+  if (ActualSignal019 == 1  ) //&& ActualSignal019Played <= 0
+  { //gas @ 50%
+    //musicPlayer.playFullFile("gas50.mp3");
+  //  Serial.println("GAS AT 50% PLAYED");
+    // digitalWrite(A15, LOW);
+    //delay(1000);
+    // digitalWrite(A15, HIGH);
+   // ActualSignal019Played ++ ;
+  }
+
+  // if (ActualSignal018 == 1 && ActualSignal018Played <= 0 ) {  //track003 - Oxygen Status – Emergency
+  //   musicPlayer.playFullFile("gas.mp3");
+  //   digitalWrite(A14, HIGH);
+  //   ActualSignal004Played ++ ; }
+
+  // if (ActualSignal004Played == 1 && ActualSignal004Played <= 0 ) {  //track003 - Oxygen Status – Emergency
+  //   musicPlayer.playFullFile("track003.mp3");
+  //  digitalWrite(A14, HIGH);
+  //   ActualSignal004Played ++ ; }
+
+  //musicPlayer.playFullFile("airDone.mp3");
+  //musicPlayer.playFullFile("disper.mp3");
+  //musicPlayer.playFullFile("filter.mp3");
+  //musicPlayer.playFullFile("quality.mp3");
+  //disper.mp3
+  //airDone.mp3
+  //filter.mp3
+  //quality.mp3
+
+
+      Serial.print("AIR PUZZLE START Played: "); //42
+      Serial.println(airPuzzleStartInputActual);
+
+      Serial.print("airDispersionInput: ");
+      Serial.println(airDispersionInputActual);
+
+      Serial.print("48: ");
+      Serial.println(ActualSignal048);
+
+      Serial.print("46: ");
+      Serial.println(ActualSignal046);
+     
+
+  if (airPuzzleStartInputActual == 1) {
+    if (airPuzzleStartCheck == false) {
+      Serial.print("AIR PUZZLE START Played: ");
+      Serial.println(airPuzzleStartInputActual);
+      musicPlayer.playFullFile("quality.mp3");
+      airPuzzleStartCheck = true;
+      delay(1000);
+        Serial.println("STAGE 1 Complete");
+    }
+  }
+
+  if (airDispersionInputActual == 1 && airPuzzleStartCheck == true) {
+    if (airQualityCheck == false) {
+      Serial.print("50: ");
+      Serial.println(ActualSignal050);
+      musicPlayer.playFullFile("filter.mp3");
+      airQualityCheck = true;
+
+      delay(1000);
+        Serial.println("STAGE 1 Complete");
+    }
+  }
+
+  if (ActualSignal048 == 1) {
+    if (airFilterCheck == false) {
+      Serial.print("48 PLAYED: ");
+     // Serial.println(ActualSignal048);
+      musicPlayer.playFullFile("disper.mp3");
+      airFilterCheck = true;
+    }
+  }
+
+  if (ActualSignal046 == 1) {
+    if (airDispersionCheck == false) {
+      Serial.print("46 PLAYED: ");
+      //Serial.println(ActualSignal046);
+      musicPlayer.playFullFile("airDone.mp3");
+      airDispersionCheck = true;
+
+    }
+  }
+  /*
+    if (digitalRead(50) == HIGH) {
+      musicPlayer.playFullFile("STAGE 2 Complete");
+    }
+
+    if (digitalRead(48) == HIGH) {
+      musicPlayer.playFullFile("STAGE 3 Complete");
+    }
+
+  */
+  /*
+    if (ActualSignal003 == 1 && ActualSignal003Played <= 0 ) {  //track003 - Oxygen Status – Emergency
+      // musicPlayer.playFullFile("filled.mp3");
+      Serial.println("GENERATOR PUZZLE SOLVED ");
+      //digitalWrite(A15, HIGH);
+      ActualSignal003Played ++ ;
+    }
+
+    if (ActualSignal003 == 1 && ActualSignal003Played == 1 ) {  //track003 - Oxygen Status – Emergency
+      //musicPlayer.playFullFile("filled.mp3");
+      Serial.print("GENERATOR PUZZLE SOLVED ");
+      digitalWrite(A15, HIGH);
+      ActualSignal003Played ++ ;
+    }
+
+  */
+}
