@@ -1,0 +1,25 @@
+
+int relay = 13;
+int photo = A0;
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(photo, INPUT);
+  pinMode(relay, OUTPUT);
+ digitalWrite(relay, HIGH);
+}
+
+void loop() {
+  int photoRead = analogRead(photo);
+  Serial.print("PHOTO: ");
+  Serial.println(photoRead);
+
+ if(photoRead >= 200) {
+  digitalWrite(relay, LOW);
+
+ } 
+ else {
+  digitalWrite(relay, HIGH);
+ }
+
+}
