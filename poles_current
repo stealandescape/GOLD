@@ -1,0 +1,226 @@
+//POLES PUZZLE. DATE: 04AUG2018 BUILT FOR UNO.
+
+#include <Keypad.h> //Library to build poles matrix //COM 13
+const byte ROWS = 6; //Six upper poles
+const byte COLS = 6; //Six lower poles
+
+// We will use a grid configuration to define all possible pole connections
+char poles[ROWS][COLS] = {
+  {'A', 'B', 'C', 'D', 'E', 'F'}, //9, A1 White
+  {'G', 'H', 'I', 'J', 'K', 'L'}, //8, A0 yellow
+  {'M', 'N', 'O', 'P', 'Q', 'R'}, //7, A2 orange
+  {'S', 'T', 'U', 'V', 'W', 'X'}, //6, A5 grey
+  {'Y', 'Z', '0', '1', '2', '3'}, //5, A4 blue
+  {'4', '5', '6', '7', '8', '9'} //4, A3 red
+};
+
+/*
+case'B': white = LOW; break;
+case'G': yellow = LOW; break;
+case'O': orange = LOW; break;
+case'X': grey = LOW; break;
+case'2': blue1 = LOW; break;
+case'7': red1 = LOW; break;
+ */
+ 
+byte rowPins[ROWS] = {9, 8, 7, 6, 5, 4}; //upper poles
+byte colPins[COLS] = {A0, A1, A2, A3, A4, A5}; //lower poles
+
+//initialize Pole Connectors
+Keypad keypad = Keypad( makeKeymap(poles), rowPins, colPins, ROWS, COLS);
+
+int music1 = 3; //Sends signal to VS1053 for LockDown message
+byte white;
+byte yellow; //B,G,O,X,2,7
+byte orange;
+byte grey = HIGH;
+byte blue1 = HIGH;
+byte red1;
+
+String msg;
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("It has begun");
+  pinMode(music1, OUTPUT);
+  digitalWrite(music1, LOW); // Stop signal to VS1053 for message
+}
+
+void loop() {/*
+  if (keypad.getKeys())
+    {
+        for (int i=0; i<LIST_MAX; i++)   // Scan the whole key list.
+        {
+            if ( keypad.key[i].stateChanged )   // Only find keys that have changed state.
+            {
+                switch (keypad.key[i].kstate) {  // Report active key state : IDLE, PRESSED, HOLD, or RELEASED
+                    case PRESSED:
+                      msg = " PRESSED.";
+                      break;
+                    case HOLD:
+                      msg = " HOLD.";
+                      switch (keypad.key[i].kchar) {
+                        case'B': white = HIGH; break;
+                        case'G': yellow = HIGH; break;
+                        case'O': orange = HIGH; break;
+                        case'7': red1 = HIGH; break;
+                      }
+                      break;
+                    case RELEASED:
+                      msg = " RELEASED.";
+                      switch (keypad.key[i].kchar) {
+                        case'B': white = LOW; break;
+                        case'G': yellow = LOW; break;
+                        case'O': orange = LOW; break;
+                        case'7': red1 = LOW; break;
+                      }
+                      break;
+                    case IDLE:
+                      msg = " IDLE.";
+                }
+
+                bool correct = false;
+                switch (keypad.key[i].kchar){
+                  case'B': 
+                  case'G': 
+                  case'O': 
+                  case'X': 
+                  case'2': 
+                  case'7': correct = true;
+                }
+                
+                Serial.print("Key ");
+                Serial.print(keypad.key[i].kchar);
+                Serial.print(msg);
+                if (correct){
+                  Serial.println("  --- correct");
+                }
+                else {
+                  Serial.println("");
+                }
+                printDebug();
+            }
+            else{
+              //Serial.println("hasn't changed");
+            }
+        }
+    }*/
+    for (int i=0; i<LIST_MAX; i++)   // Scan the whole key list.
+    {
+      //if ( keypad.key[i].stateChanged )   // Only find keys that have changed state.
+      //{
+          switch (keypad.key[i].kstate) {  // Report active key state : IDLE, PRESSED, HOLD, or RELEASED
+              case PRESSED:
+                msg = " PRESSED.";
+                break;
+              case HOLD:
+                msg = " HOLD.";
+                switch (keypad.key[i].kchar) {
+                  case'B': white = HIGH; break;
+                  case'G': yellow = HIGH; break;
+                  case'O': orange = HIGH; break;
+                  case'7': red1 = HIGH; break;
+                }
+                break;
+              case RELEASED:
+                msg = " RELEASED.";
+                switch (keypad.key[i].kchar) {
+                  case'B': white = LOW; break;
+                  case'G': yellow = LOW; break;
+                  case'O': orange = LOW; break;
+                  case'7': red1 = LOW; break;
+                }
+                break;
+              case IDLE:
+                msg = " IDLE.";
+          }
+  
+          bool correct = false;
+          switch (keypad.key[i].kchar){
+            case'B': 
+            case'G': 
+            case'O': 
+            case'X': 
+            case'2': 
+            case'7': correct = true;
+          }
+          
+          Serial.print("Key ");
+          Serial.print(keypad.key[i].kchar);
+          Serial.print(msg);
+          if (correct){
+            Serial.println("  --- correct");
+          }
+          else {
+            Serial.println("");
+          }
+          printDebug();
+    //}
+    //else{
+      //Serial.println("hasn't changed");
+    //}
+  }
+  
+  keypad.getKeys(); { // If keypad buttons are active
+    unLock();
+  }
+}
+
+void printDebug(){
+  Serial.print("white: "); //For testing to show if the wire is correct
+  Serial.println(white);
+
+  Serial.print("yellow: ");
+  Serial.println(yellow);
+
+  Serial.print("orange: ");
+  Serial.println(orange);
+
+  Serial.print("grey: ");
+  Serial.println(grey);
+
+  Serial.print("blue: ");
+  Serial.println(blue1);
+
+  Serial.print("red: ");
+  Serial.println(red1);
+}
+
+void unLock() {
+  int closed;
+/*
+  Serial.print("white: "); //For testing to show if the wire is correct
+  Serial.println(white);
+
+  Serial.print("yellow: ");
+  Serial.println(yellow);
+
+  Serial.print("orange: ");
+  Serial.println(orange);
+
+  Serial.print("grey: ");
+  Serial.println(grey);
+
+  Serial.print("blue: ");
+  Serial.println(blue1);
+
+  Serial.print("red: ");
+  Serial.println(red1);
+*/
+  if ((white == HIGH) && (yellow == HIGH) && (orange == HIGH) //If all are correct, signal is sent.
+      && (grey == HIGH) && (blue1 == HIGH) && (red1 == HIGH)) {
+    digitalWrite(music1, HIGH); //Pin 13
+    Serial.println("Open");
+    delay(1000);
+   // digitalWrite(music1, LOW);
+      delay(500000);
+     closed = closed +1;
+  }
+
+  if (closed >= 1)
+  {
+    Serial.println("Closed");
+    digitalWrite(music1, LOW);
+    
+  }
+}
