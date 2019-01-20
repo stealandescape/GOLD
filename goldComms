@@ -1,0 +1,113 @@
+int station1 = 8;
+int station2 = 9;
+int station3 = 10;
+int station4 = 11;
+int station5 = 12;
+int endStation = 13;
+ bool station1Played =   false;
+ bool station2Played =   false;
+ bool station3Played =   false;
+ bool station4Played =   false;
+ bool station5Played =   false;
+ bool endStationPlayed = false;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode (station1,   INPUT_PULLUP);
+  pinMode (station2,   INPUT_PULLUP);
+  pinMode (station3,   INPUT_PULLUP);
+  pinMode (station4,   INPUT_PULLUP);
+  pinMode (station5,   INPUT_PULLUP);
+  pinMode (endStation, INPUT_PULLUP);
+
+
+   
+}
+
+
+
+void loop() {
+int station1Read = digitalRead(station1); 
+int station2Read = digitalRead(station2); 
+int station3Read = digitalRead(station3); 
+int station4Read = digitalRead(station4); 
+int station5Read = digitalRead(station5); 
+int endStationRead = digitalRead(endStation); 
+
+/*
+Serial.print("station1Read: ");
+Serial.println(station1Read);
+
+Serial.print("station222Read: ");
+Serial.println(station2Read);
+
+Serial.print("station33333Read: ");
+Serial.println(station3Read);
+
+Serial.print("station4444444Read: ");
+Serial.println(station4Read);
+
+Serial.print("station55555555Read: ");
+Serial.println(station5Read);
+
+Serial.print("endStation666666Read: ");
+Serial.println(endStationRead);
+*/
+  if (station1Read == LOW) {
+    Serial.println("Station1");
+    station1Played = true; }
+
+     if (station1Read == HIGH) {
+      station1Played = false; }
+  
+   
+   if (station2Read == LOW) {
+      Serial.println("Station2");
+      station2Played = true; }
+
+      if (station2Read == HIGH) {
+       station2Played = false; }
+   
+   if (station3Read == LOW) {
+      Serial.println("Station3");
+      station3Played = true; }
+
+      if (station3Read == HIGH) {
+       station3Played = false; }
+      
+    
+    if (station4Read == LOW) {
+      Serial.println("Station4");
+      station4Played = true; }
+
+      if (station4Read == HIGH) {
+         station4Played = false; }
+      
+    
+    if (station5Read == LOW) {
+      Serial.println("Station5");
+      station5Played = true; }
+
+      if (station5Read == HIGH) {
+        station5Played = false; }
+    
+    if (endStationRead == LOW) {
+      Serial.println("endStation");
+      endStationPlayed = true;  }
+
+       if (endStationRead == HIGH) {
+           endStationPlayed = false;  }
+      
+   
+    
+if (station1Played == true) {
+  
+   if(station2Played == true) {
+    
+     if(station3Played == true) {
+       if(station4Played == true) {
+        
+        if(station5Played == true) {
+          Serial.println ("ACCOMPLISHED");
+        
+}}}}}}
