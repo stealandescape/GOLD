@@ -1,0 +1,72 @@
+int redPin = 11; // R petal on RGB LED module connected to digital pin 11
+int greenPin = 10; // G petal on RGB LED module connected to digital pin 9
+int bluePin = 9; // B petal on RGB LED module connected to digital pin 10
+byte com = 0; //reply from voice recognition
+
+bool played = false;
+
+void setup()
+{
+Serial.begin(9600);
+
+pinMode(redPin, OUTPUT); // sets the redPin to be an output
+pinMode(greenPin, OUTPUT); // sets the greenPin to be an output
+pinMode(bluePin, OUTPUT); // sets the bluePin to be an output
+delay(2000);
+Serial.write(0xAA);
+Serial.write(0x37);
+delay(1000);
+Serial.write(0xAA);
+Serial.write(0x21);
+
+digitalWrite(greenPin, HIGH);
+}
+
+void loop() // run over and over again
+{
+while(Serial.available())
+{
+  
+com = Serial.read();
+
+switch(com)
+{
+case 0x11:
+digitalWrite(greenPin,LOW); // turn RGB LED on -- white
+
+played = true;
+break;
+
+case 0x12:
+digitalWrite(greenPin,LOW); // turn the RGB LED red
+
+played = true;
+break;
+
+case 0x13:
+digitalWrite(greenPin,LOW); // turn the RGB LED green
+
+played = true;
+break;
+
+case 0x14:
+digitalWrite(greenPin,LOW); // turn the RGB LED blue
+
+played = true;
+break;
+
+case 0x15:
+digitalWrite(greenPin,LOW); // turn the RGB LED off
+
+played = true;
+break;
+
+}
+}
+ if (played == true) {
+    delay(1000);
+     digitalWrite(greenPin, HIGH);
+     played = false;
+  }
+
+}
